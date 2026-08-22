@@ -1,26 +1,11 @@
-import React, { useState } from 'react';
-import { 
-  Sparkles, 
-  ShieldCheck, 
-  AlertTriangle, 
-  Activity, 
-  ArrowRight, 
-  CheckCircle2, 
-  Sliders, 
-  Zap, 
-  Clock, 
-  Users, 
-  Lock, 
-  ChevronRight,
-  TrendingUp,
-  Cpu,
-  Layers,
-  Crown
+import React, { useMemo, useState } from 'react';
+import {
+  Activity, ArrowRight, Check, CheckCircle2, ChevronRight, Clock3, Code2,
+  Database, Gauge, Layers3, LockKeyhole, Menu, Network, Play, ShieldCheck,
+  Sparkles, Target, Users, X
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { RiskBadge } from '../components/requests/RiskBadge';
 import { calculateDynamicRisk } from '../utils/riskCalculator';
 
 export interface LandingPageProps {
@@ -28,350 +13,129 @@ export interface LandingPageProps {
   onSwitchRole: (role: 'ADMIN' | 'CLIENT') => void;
 }
 
-export function LandingPage({ onNavigate, onSwitchRole }: LandingPageProps) {
-  // Interactive Live Simulator State on Landing Page
-  const [simElapsed, setSimElapsed] = useState(75); // %
-  const [simComplexity, setSimComplexity] = useState(8); // 1-10
-  const [simOverloaded, setSimOverloaded] = useState(true);
+const policies = [
+  { name: 'Platinum', accent: 'indigo', uptime: '99.9%', response: '15m', resolution: '2h', penalty: '$500/hr', featured: true },
+  { name: 'Gold', accent: 'purple', uptime: '99.5%', response: '30m', resolution: '4h', penalty: '$250/hr' },
+  { name: 'Silver', accent: 'slate', uptime: '98.0%', response: '2h', resolution: '12h', penalty: '$100/hr' },
+];
 
-  // Compute simulator risk dynamically
-  const fakeAssignee = {
-    id: 'sim-1',
-    name: simOverloaded ? 'Marcus (Overloaded SRE)' : 'David (Available SRE)',
-    email: 'marcus@demo.io',
-    role: 'AGENT' as const,
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150',
-    title: 'Senior Engineer',
-    activeTicketsCount: simOverloaded ? 6 : 2,
-    maxCapacity: 5,
+const features = [
+  { icon: Target, color: 'indigo', title: 'Autonomous AI Risk Engine', description: 'Explainable scoring weighs SLA time, queue saturation, architecture complexity, and resource coverage before a breach is visible.' },
+  { icon: Clock3, color: 'purple', title: 'Sub-Minute Live SLA Timers', description: 'Track response and resolution commitments with live countdowns, warning thresholds, and automatic breach-state transitions.' },
+  { icon: Network, color: 'cyan', title: 'Live Pre-Triage Prediction', description: 'As requests arrive, classify urgency, estimate resolution effort, and route work to the right team before the queue compounds.' },
+  { icon: ShieldCheck, color: 'emerald', title: 'Penalty Defense Ledger', description: 'Quantify prevented financial exposure in real time so every intervention is tied to a measurable business outcome.' },
+];
+
+function scrollTo(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+export function LandingPage({ onNavigate, onSwitchRole }: LandingPageProps) {
+  const [elapsed, setElapsed] = useState(75);
+  const [complexity, setComplexity] = useState(8);
+  const [overloaded, setOverloaded] = useState(true);
+  const [preview, setPreview] = useState<'ops' | 'client'>('ops');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [remediated, setRemediated] = useState(false);
+
+  const result = useMemo(() => calculateDynamicRisk(
+    elapsed,
+    complexity,
+    {
+      id: 'demo-sre',
+      name: overloaded ? 'Marcus Vance' : 'David Kim',
+      email: 'demo@sla.ai',
+      role: 'AGENT',
+      avatar: '',
+      title: 'Senior Reliability Engineer',
+      activeTicketsCount: overloaded ? 6 : 2,
+      maxCapacity: 5,
+    },
+    remediated ? 1 : 0,
+  ), [elapsed, complexity, overloaded, remediated]);
+
+  const launch = (role: 'ADMIN' | 'CLIENT', path: string) => {
+    onSwitchRole(role);
+    onNavigate(path);
   };
 
-  const simResult = calculateDynamicRisk(simElapsed, simComplexity, fakeAssignee, 0);
-
   return (
-    <div className="min-h-screen bg-[#090D16] text-slate-100 selection:bg-indigo-500 selection:text-white">
-      
-      {/* Background Ambient Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-600/20 via-purple-600/10 to-transparent blur-[120px] pointer-events-none" />
+    <div className="min-h-screen overflow-hidden bg-[#090D16] text-slate-100 selection:bg-indigo-500 selection:text-white">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(99,102,241,.24),transparent_38%),radial-gradient(circle_at_90%_45%,rgba(168,85,247,.1),transparent_25%)]" />
+      <div className="pointer-events-none fixed left-1/2 top-28 z-0 h-[480px] w-[480px] -translate-x-1/2 rounded-full border border-indigo-400/10 [transform-style:preserve-3d] animate-[spin_24s_linear_infinite]" />
 
-      {/* Top Floating Navbar for Landing Page */}
-      <header className="relative z-50 border-b border-slate-800/80 bg-[#0B0F19]/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-[0_0_20px_rgba(99,102,241,0.4)]">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <span className="font-bold tracking-tight text-white text-lg">
-              SLA <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">AI Platform</span>
-            </span>
+      <header className="sticky top-0 z-50 border-b border-white/[.07] bg-[#090D16]/75 backdrop-blur-2xl">
+        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 lg:px-8">
+          <button onClick={() => scrollTo('top')} className="flex items-center gap-3" aria-label="SLA AI Platform home">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow-[0_0_24px_rgba(99,102,241,.45)]"><Sparkles size={18} /></span>
+            <span className="text-sm font-bold tracking-tight text-white sm:text-base">SLA <span className="text-indigo-300">AI Platform</span></span>
+          </button>
+          <nav className="hidden items-center gap-7 text-xs font-medium text-slate-400 lg:flex">
+            {['features', 'simulator', 'policies', 'pricing', 'docs'].map((item) => (
+              <button key={item} onClick={() => scrollTo(item)} className="capitalize transition hover:text-white">{item === 'simulator' ? 'Live Simulator' : item === 'docs' ? 'Docs' : item}</button>
+            ))}
+          </nav>
+          <div className="hidden items-center gap-2 sm:flex">
+            <Button variant="ghost" size="sm" onClick={() => launch('CLIENT', '/client')}>Client Portal</Button>
+            <Button variant="ai-glow" size="sm" onClick={() => launch('ADMIN', '/admin')} rightIcon={<ArrowRight size={14} />}>Launch Admin Center</Button>
           </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onSwitchRole('CLIENT');
-                onNavigate('/client');
-              }}
-              className="text-xs"
-            >
-              Client Demo
-            </Button>
-            <Button
-              variant="ai-glow"
-              size="sm"
-              onClick={() => {
-                onSwitchRole('ADMIN');
-                onNavigate('/admin');
-              }}
-              className="text-xs"
-            >
-              Launch Admin Center
-            </Button>
-          </div>
+          <button className="rounded-lg p-2 text-slate-300 sm:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle navigation">{mobileOpen ? <X size={20} /> : <Menu size={20} />}</button>
         </div>
+        {mobileOpen && <div className="border-t border-white/[.07] bg-[#0B0F19] px-5 py-4 sm:hidden">
+          <div className="grid gap-3 text-left text-sm text-slate-300">{['features', 'simulator', 'policies', 'pricing', 'docs'].map(item => <button key={item} onClick={() => { scrollTo(item); setMobileOpen(false); }} className="capitalize">{item}</button>)}</div>
+        </div>}
       </header>
 
-      {/* Hero Section */}
-      <section className="relative z-10 pt-16 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-8">
-        
-        {/* Release Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-          <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
-          <span>Next-Gen Enterprise SLA Risk Prediction Engine</span>
-          <ChevronRight className="h-3.5 w-3.5 text-indigo-400" />
-        </div>
-
-        {/* Hero Title */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-5xl mx-auto leading-[1.15]">
-          Predict, Prevent, and Master Enterprise SLAs with{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-            Autonomous AI
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
-          Stop reacting to breached SLA tickets. Our explainable ML model identifies impending breaches before they happen, diagnoses root bottlenecks, and automates one-click team remediation.
-        </p>
-
-        {/* CTA Launch Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Button
-            size="lg"
-            variant="ai-glow"
-            rightIcon={<ArrowRight className="h-4 w-4" />}
-            onClick={() => {
-              onSwitchRole('ADMIN');
-              onNavigate('/admin');
-            }}
-            className="w-full sm:w-auto text-sm px-8"
-          >
-            Enter Operations Command Center
-          </Button>
-
-          <Button
-            size="lg"
-            variant="glass"
-            onClick={() => {
-              onSwitchRole('CLIENT');
-              onNavigate('/client');
-            }}
-            className="w-full sm:w-auto text-sm px-8"
-          >
-            Requester Portal Experience
-          </Button>
-        </div>
-
-        {/* Live ROI Banner */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12 max-w-4xl mx-auto">
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-3xl font-extrabold text-white font-mono">99.8%</span>
-            <p className="text-xs text-slate-400 mt-1">SLA Compliance Rate</p>
+      <main id="top" className="relative z-10">
+        <section className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-24 pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:pb-32 lg:pt-28">
+          <div>
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-indigo-400/25 bg-indigo-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.16em] text-indigo-300"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> AI governance, now in production <ChevronRight size={13} /></div>
+            <h1 className="max-w-3xl text-5xl font-semibold leading-[1.04] tracking-[-.045em] text-white sm:text-6xl lg:text-[76px]">Predict SLA breaches <span className="bg-gradient-to-r from-indigo-300 via-fuchsia-300 to-purple-400 bg-clip-text text-transparent">before they cost millions.</span></h1>
+            <p className="mt-7 max-w-xl text-base leading-7 text-slate-400 sm:text-lg">Transform reactive ticket firefighting into proactive AI governance with multi-factor risk diagnostics, workload-aware triage, and automated one-click remediation.</p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row"><Button size="lg" variant="ai-glow" onClick={() => launch('ADMIN', '/admin')} rightIcon={<ArrowRight size={17} />}>Enter Operations Center</Button><Button size="lg" variant="glass" onClick={() => scrollTo('simulator')} leftIcon={<Play size={15} />}>Run live simulator</Button></div>
+            <div className="mt-10 flex items-center gap-6 text-xs text-slate-500"><span className="flex items-center gap-2"><CheckCircle2 size={15} className="text-emerald-400" /> SOC 2-ready controls</span><span className="flex items-center gap-2"><LockKeyhole size={14} className="text-indigo-400" /> Enterprise-grade</span></div>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-3xl font-extrabold text-indigo-400 font-mono">68%</span>
-            <p className="text-xs text-slate-400 mt-1">Breach Reduction</p>
+          <div className="relative mx-auto w-full max-w-[510px] [perspective:1200px]">
+            <div className="absolute -inset-8 rounded-[40px] bg-indigo-500/15 blur-3xl" />
+            <div className="relative rounded-[28px] border border-white/10 bg-[#0d1423]/90 p-5 shadow-2xl shadow-indigo-950/60 [transform:rotateY(-7deg)_rotateX(4deg)] backdrop-blur-xl sm:p-7">
+              <div className="mb-7 flex items-center justify-between"><div><div className="text-[10px] uppercase tracking-[.18em] text-slate-500">Real-time command signal</div><div className="mt-1 text-sm font-semibold text-white">Incident risk telemetry</div></div><div className="flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[10px] text-emerald-300"><Activity size={12} /> LIVE</div></div>
+              <div className="grid grid-cols-[1fr_135px] items-center gap-4"><div className="space-y-4"><div className="h-2 rounded-full bg-slate-800"><div className="h-2 w-[78%] rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-400 shadow-[0_0_18px_rgba(129,110,255,.8)]" /></div><div className="h-2 w-[62%] rounded-full bg-gradient-to-r from-purple-600 to-indigo-400 opacity-80" /><div className="h-2 w-[88%] rounded-full bg-gradient-to-r from-rose-500 to-amber-400 opacity-90" /></div><div className="relative flex aspect-square items-center justify-center rounded-full border-[10px] border-rose-500/20"><div className="absolute inset-[-10px] rounded-full border-[10px] border-transparent border-l-rose-400 border-t-fuchsia-400 rotate-[-30deg]" /><div className="text-center"><div className="text-4xl font-semibold text-white">82</div><div className="text-[10px] uppercase tracking-widest text-rose-300">critical</div></div></div></div>
+              <div className="mt-8 grid grid-cols-3 gap-2"><div className="rounded-xl border border-white/[.07] bg-white/[.03] p-3"><div className="text-lg font-semibold text-white">4.2x</div><div className="mt-1 text-[10px] text-slate-500">faster resolution</div></div><div className="rounded-xl border border-white/[.07] bg-white/[.03] p-3"><div className="text-lg font-semibold text-emerald-300">99.4%</div><div className="mt-1 text-[10px] text-slate-500">SLA compliance</div></div><div className="rounded-xl border border-white/[.07] bg-white/[.03] p-3"><div className="text-lg font-semibold text-indigo-300">$2.4M</div><div className="mt-1 text-[10px] text-slate-500">penalties avoided</div></div></div>
+              <div className="absolute -right-5 -top-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-300/30 bg-indigo-500/20 text-indigo-200 shadow-lg shadow-indigo-500/20 animate-[pulseGlow_3s_ease-in-out_infinite]"><Gauge size={24} /></div>
+            </div>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-3xl font-extrabold text-purple-400 font-mono">4.2x</span>
-            <p className="text-xs text-slate-400 mt-1">Faster Resolution</p>
+        </section>
+
+        <section id="simulator" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 lg:px-8">
+          <div className="mb-10 max-w-2xl"><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-indigo-300">Live simulator</p><h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">See the breach before it happens.</h2><p className="mt-3 text-sm leading-6 text-slate-400">Move the telemetry controls and watch our explainable risk engine react in real time.</p></div>
+          <div className="grid gap-5 lg:grid-cols-[.8fr_1.2fr]">
+            <Card variant="glass" className="p-6 sm:p-8"><div className="mb-8 flex items-center justify-between"><div><div className="text-sm font-semibold text-white">Incident parameters</div><div className="mt-1 text-xs text-slate-500">Configure live telemetry</div></div><SlidersIcon /></div>
+              <Range label="SLA elapsed time" value={elapsed} min={0} max={100} suffix="%" color="indigo" onChange={setElapsed} /><Range label="Technical complexity" value={complexity} min={1} max={10} suffix="/10" color="purple" onChange={setComplexity} />
+              <div className="mt-7"><div className="mb-3 flex justify-between text-xs"><span className="font-medium text-slate-300">Assigned engineer capacity</span><span className="text-slate-500">{overloaded ? '120% utilized' : '40% utilized'}</span></div><div className="grid grid-cols-2 gap-2">{[['Balanced', false], ['Overloaded', true]].map(([label, state]) => <button key={String(label)} onClick={() => { setOverloaded(Boolean(state)); setRemediated(false); }} className={`rounded-xl border px-3 py-3 text-left text-xs transition ${overloaded === state ? 'border-rose-400/40 bg-rose-400/10 text-rose-200' : 'border-white/[.08] bg-white/[.03] text-slate-400 hover:border-white/20'}`}><span className={`mb-2 block h-2 w-2 rounded-full ${state ? 'bg-rose-400' : 'bg-emerald-400'}`} />{label}<span className="mt-1 block text-[10px] opacity-60">{state ? '6 active incidents' : '2 active incidents'}</span></button>)}</div></div>
+            </Card>
+            <Card variant="glow" className="relative p-6 sm:p-8"><div className="flex items-center justify-between border-b border-white/[.08] pb-5"><div className="flex items-center gap-3"><span className="rounded-lg bg-indigo-500/15 p-2 text-indigo-300"><Sparkles size={16} /></span><div><div className="text-sm font-semibold text-white">AI risk diagnosis</div><div className="text-[11px] text-slate-500">Model updated just now</div></div></div><span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${result.riskLevel === 'CRITICAL' ? 'border-rose-400/30 bg-rose-400/10 text-rose-300' : result.riskLevel === 'HIGH' ? 'border-amber-400/30 bg-amber-400/10 text-amber-300' : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'}`}>{result.riskLevel} risk</span></div>
+              <div className="mt-7 flex flex-col gap-6 sm:flex-row sm:items-center"><div className="relative flex h-36 w-36 shrink-0 items-center justify-center rounded-full border-[12px] border-slate-800"><div className={`absolute inset-[-12px] rounded-full border-[12px] border-transparent ${result.riskLevel === 'CRITICAL' ? 'border-l-rose-400 border-t-fuchsia-400' : 'border-l-emerald-400 border-t-indigo-400'} rotate-[-35deg] transition-all`} /><div className="text-center"><div className="text-4xl font-semibold text-white">{result.riskScore}</div><div className="text-[10px] uppercase tracking-widest text-slate-500">risk score</div></div></div><div><div className="text-sm leading-6 text-slate-300">{result.riskExplanation}</div><div className="mt-4 flex flex-wrap gap-2">{result.riskFactors.slice(0, 3).map(factor => <span key={factor.id} className="rounded-md bg-white/[.05] px-2 py-1 text-[10px] text-slate-400">{factor.label}: <b className="text-slate-200">{factor.impact}</b></span>)}</div></div></div>
+              <div className="mt-7 flex flex-col justify-between gap-4 border-t border-white/[.08] pt-5 sm:flex-row sm:items-center"><div><div className="text-[10px] uppercase tracking-widest text-slate-500">Recommended action</div><div className="mt-1 text-xs font-medium text-white">{overloaded ? 'Reassign to available SRE' : 'Trigger fast rollback playbook'}</div></div><Button size="sm" variant={remediated ? 'secondary' : 'ai-glow'} onClick={() => setRemediated(true)} leftIcon={remediated ? <Check size={14} /> : <Sparkles size={14} />}>{remediated ? 'Risk reduced' : 'One-click remediate'}</Button></div>
+            </Card>
           </div>
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
-            <span className="text-3xl font-extrabold text-emerald-400 font-mono">$180k+</span>
-            <p className="text-xs text-slate-400 mt-1">Penalty Cost Avoided</p>
-          </div>
-        </div>
+        </section>
 
-      </section>
+        <section id="features" className="scroll-mt-24 border-y border-white/[.05] bg-[#0B0F19]/60 px-5 py-20 lg:px-8"><div className="mx-auto max-w-7xl"><div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-purple-300">The proactive advantage</p><h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Built for high-velocity operations.</h2></div><p className="max-w-sm text-sm leading-6 text-slate-500">The intelligence layer between your customer promise and the teams delivering it.</p></div><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">{features.map(({ icon: Icon, color, title, description }) => <Card key={title} variant="glass" hoverEffect className="p-6"><div className={`mb-8 flex h-10 w-10 items-center justify-center rounded-xl bg-${color}-500/10 text-${color}-300`}><Icon size={19} /></div><h3 className="text-sm font-semibold text-white">{title}</h3><p className="mt-3 text-xs leading-6 text-slate-500">{description}</p></Card>)}</div></div></section>
 
-      {/* Interactive Live SLA Risk Simulator Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center space-y-3 mb-10">
-          <Badge variant="ai">Interactive Demonstration</Badge>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-            Test the AI Breach Risk Engine Live
-          </h2>
-          <p className="text-sm text-slate-400 max-w-xl mx-auto">
-            Adjust the telemetry sliders below to watch the explainable ML model compute breach probability and risk drivers in real-time.
-          </p>
-        </div>
+        <section id="pricing" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 lg:px-8"><div className="mb-10 text-center"><p className="mb-3 text-xs font-semibold uppercase tracking-[.18em] text-indigo-300">SLA policy studio</p><h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Commitments your customers can trust.</h2></div><div id="policies" className="grid gap-4 scroll-mt-24 md:grid-cols-3">{policies.map(policy => <Card key={policy.name} variant={policy.featured ? 'glow' : 'glass'} className={`relative p-6 ${policy.featured ? 'ring-1 ring-indigo-400/30' : ''}`}>{policy.featured && <div className="absolute right-5 top-5 rounded-full bg-indigo-500/15 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-indigo-300">Most adopted</div>}<div className="text-xs font-semibold uppercase tracking-widest text-slate-400">{policy.name} tier</div><div className="mt-7 text-3xl font-semibold text-white">{policy.uptime} <span className="text-sm font-normal text-slate-500">uptime</span></div><div className="my-6 space-y-3 border-y border-white/[.07] py-5 text-xs">{[['Response SLA', policy.response], ['Resolution SLA', policy.resolution], ['Breach defense', policy.penalty]].map(([label, value]) => <div key={String(label)} className="flex justify-between text-slate-500"><span>{label}</span><span className="font-medium text-slate-200">{value}</span></div>)}</div><div className="flex items-center gap-2 text-xs text-emerald-300"><Check size={14} /> Predictive breach protection included</div></Card>)}</div></section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          
-          {/* Left Controls: Sliders (5 cols) */}
-          <Card variant="glass" className="lg:col-span-5 p-6 space-y-6">
-            <div className="border-b border-slate-800 pb-3">
-              <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-                Simulated Incident Parameters
-              </h4>
-              <p className="text-xs text-slate-400">Configure ticket telemetry</p>
-            </div>
+        <section className="mx-auto max-w-7xl px-5 pb-20 lg:px-8"><Card variant="glass" className="overflow-hidden p-0"><div className="flex flex-col justify-between gap-5 border-b border-white/[.07] p-6 sm:flex-row sm:items-center sm:p-8"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-slate-500">Product preview</p><h2 className="mt-2 text-2xl font-semibold text-white">One source of truth for every stakeholder.</h2></div><div className="flex rounded-lg border border-white/[.08] bg-black/20 p-1"><button onClick={() => setPreview('ops')} className={`rounded-md px-3 py-2 text-xs ${preview === 'ops' ? 'bg-indigo-500/20 text-indigo-200' : 'text-slate-500'}`}>Operations center</button><button onClick={() => setPreview('client')} className={`rounded-md px-3 py-2 text-xs ${preview === 'client' ? 'bg-indigo-500/20 text-indigo-200' : 'text-slate-500'}`}>Client portal</button></div></div><div className="grid gap-5 bg-[#0a101d] p-6 sm:grid-cols-[1.1fr_.9fr] sm:p-8"><div className="rounded-xl border border-white/[.07] bg-[#101827] p-5"><div className="mb-5 flex items-center justify-between"><div className="flex items-center gap-2 text-xs font-semibold text-white"><span className="h-2 w-2 rounded-full bg-rose-400" /> {preview === 'ops' ? 'At-risk prioritization queue' : 'Request progress'}</div><span className="text-[10px] text-slate-500">Updated 12s ago</span></div>{(preview === 'ops' ? ['API latency spike in us-east-1', 'Payment webhook delivery delay', 'SSO provisioning failures'] : ['Incident response · INC-2841', 'Database migration review', 'Access policy update']).map((item, i) => <div key={item} className="mb-2 flex items-center justify-between rounded-lg border border-white/[.05] bg-white/[.025] p-3"><div><div className="text-xs text-slate-200">{item}</div><div className="mt-1 text-[10px] text-slate-500">{preview === 'ops' ? `Risk ${92 - i * 14}% · ${i + 1}m to action` : ['In progress', 'Under review', 'Resolved'][i]}</div></div><ChevronRight size={14} className="text-slate-600" /></div>)}</div><div className="flex flex-col justify-center gap-4"><MiniStat icon={Activity} value={preview === 'ops' ? '97.4%' : '3h 18m'} label={preview === 'ops' ? 'compliance this month' : 'resolution ETA'} color="indigo" /><MiniStat icon={Database} value={preview === 'ops' ? '$184k' : '100%'} label={preview === 'ops' ? 'risk exposure avoided' : 'audit transparency'} color="emerald" /></div></div></Card></section>
 
-            {/* Elapsed SLA Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-semibold">SLA Window Elapsed:</span>
-                <span className="font-mono font-bold text-indigo-400">{simElapsed}%</span>
-              </div>
-              <input
-                type="range"
-                min="10"
-                max="100"
-                value={simElapsed}
-                onChange={e => setSimElapsed(Number(e.target.value))}
-                className="w-full accent-indigo-500 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                <span>10% (Just Opened)</span>
-                <span>100% (Deadline)</span>
-              </div>
-            </div>
-
-            {/* Complexity Slider */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-slate-300 font-semibold">System Complexity:</span>
-                <span className="font-mono font-bold text-purple-400">Level {simComplexity} / 10</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={simComplexity}
-                onChange={e => setSimComplexity(Number(e.target.value))}
-                className="w-full accent-purple-500 cursor-pointer"
-              />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                <span>Level 1 (Simple)</span>
-                <span>Level 10 (Critical Arch)</span>
-              </div>
-            </div>
-
-            {/* Engineer Workload Toggle */}
-            <div className="pt-2">
-              <span className="text-xs text-slate-300 font-semibold block mb-2">
-                Engineer Queue Saturation:
-              </span>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSimOverloaded(false)}
-                  className={`p-2.5 rounded-xl border text-xs font-semibold transition ${
-                    !simOverloaded
-                      ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-400'
-                  }`}
-                >
-                  Balanced (2 active)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSimOverloaded(true)}
-                  className={`p-2.5 rounded-xl border text-xs font-semibold transition ${
-                    simOverloaded
-                      ? 'bg-rose-500/20 border-rose-500/50 text-rose-300'
-                      : 'bg-slate-900 border-slate-800 text-slate-400'
-                  }`}
-                >
-                  Overloaded (6 active)
-                </button>
-              </div>
-            </div>
-          </Card>
-
-          {/* Right: AI Output Diagnostic Preview (7 cols) */}
-          <Card variant="glow" className="lg:col-span-7 p-6 space-y-5 bg-[#0F1626]">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <h4 className="text-sm font-bold text-white">Live AI Risk Output</h4>
-              </div>
-
-              <RiskBadge score={simResult.riskScore} level={simResult.riskLevel} size="md" />
-            </div>
-
-            {/* Explanation box */}
-            <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
-              <p className="text-xs text-slate-200 leading-relaxed font-medium">
-                {simResult.riskExplanation}
-              </p>
-            </div>
-
-            {/* Factor breakdown */}
-            <div className="space-y-2.5">
-              {simResult.riskFactors.map(factor => (
-                <div key={factor.id} className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs flex items-center justify-between">
-                  <span className="font-semibold text-slate-300">{factor.label}</span>
-                  <span className={`text-[11px] font-bold uppercase ${
-                    factor.impact === 'critical' ? 'text-rose-400' : factor.impact === 'high' ? 'text-orange-400' : 'text-emerald-400'
-                  }`}>
-                    {factor.impact} Impact
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
-              <span className="text-xs text-slate-400">
-                Recommended Action: <strong className="text-white font-medium">{simOverloaded ? 'Auto-Reassign to David Kim (-45% Risk)' : 'Trigger Fast Rollback'}</strong>
-              </span>
-              <Button
-                size="sm"
-                variant="ai-glow"
-                onClick={() => {
-                  onSwitchRole('ADMIN');
-                  onNavigate('/admin/at-risk');
-                }}
-                className="text-xs"
-              >
-                Try in Dashboard
-              </Button>
-            </div>
-          </Card>
-
-        </div>
-      </section>
-
-      {/* Feature Grid Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-12">
-        <div className="text-center space-y-3">
-          <h2 className="text-3xl font-bold text-white tracking-tight">
-            Built for Modern High-Velocity Operations
-          </h2>
-          <p className="text-sm text-slate-400 max-w-2xl mx-auto">
-            Everything your team needs to enforce contract commitments, protect customer trust, and streamline engineering triage.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card variant="glass" className="p-6 space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
-              <Zap className="h-5 w-5" />
-            </div>
-            <h4 className="text-base font-bold text-white">Predictive Breach Scoring</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              ML heuristic models analyze elapsed duration, engineer bandwidth, complexity, and historical resolution curves to identify breaches hours ahead.
-            </p>
-          </Card>
-
-          <Card variant="glass" className="p-6 space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center">
-              <Sparkles className="h-5 w-5" />
-            </div>
-            <h4 className="text-base font-bold text-white">One-Click Auto Remediation</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Execute intelligent mitigations with a single click—reassigning to low-saturation specialists, pairing co-responders, or triggering emergency playbooks.
-            </p>
-          </Card>
-
-          <Card variant="glass" className="p-6 space-y-3">
-            <div className="h-10 w-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
-              <Sliders className="h-5 w-5" />
-            </div>
-            <h4 className="text-base font-bold text-white">Multi-Tier SLA Policy Studio</h4>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Configure Platinum, Gold, and Silver tiers with custom response and resolution targets, escalation thresholds, and financial penalty rules.
-            </p>
-          </Card>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-12 px-4 sm:px-6 lg:px-8 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-white">SLA AI Platform</span>
-            <span>•</span>
-            <span>Enterprise SLA Intelligence</span>
-          </div>
-          <p>© 2026 SLA AI Systems. Built with precision for high-uptime engineering teams.</p>
-        </div>
-      </footer>
-
+        <section id="docs" className="border-t border-white/[.06] px-5 py-20 text-center lg:px-8"><div className="mx-auto max-w-3xl"><div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border border-indigo-400/25 bg-indigo-500/10 text-indigo-300"><Sparkles size={25} /></div><h2 className="text-4xl font-semibold tracking-tight text-white">Make every SLA a competitive advantage.</h2><p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400">Give your teams the context to act early, your customers the transparency to trust you, and your business the confidence to scale.</p><div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button size="lg" variant="ai-glow" onClick={() => launch('ADMIN', '/admin')} rightIcon={<ArrowRight size={16} />}>Launch live platform</Button><Button size="lg" variant="glass" onClick={() => launch('CLIENT', '/client')}>Create a request</Button></div><div className="mt-9 inline-flex items-center gap-2 text-xs text-slate-500"><span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_#10b981]" /> All systems operational · 100%</div></div></section>
+      </main>
+      <footer className="border-t border-white/[.06] px-5 py-8 lg:px-8"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 text-xs text-slate-600 sm:flex-row"><span className="font-semibold text-slate-300">SLA AI Platform</span><span>Predictive governance for high-uptime teams · © 2026</span><span className="flex items-center gap-2"><Code2 size={13} /> Built for operational precision</span></div></footer>
     </div>
   );
 }
+
+function Range({ label, value, min, max, suffix, color, onChange }: { label: string; value: number; min: number; max: number; suffix: string; color: string; onChange: (value: number) => void }) {
+  return <div className="mb-7"><div className="mb-3 flex justify-between text-xs"><span className="font-medium text-slate-300">{label}</span><span className={`font-mono text-${color}-300`}>{value}{suffix}</span></div><input aria-label={label} type="range" min={min} max={max} value={value} onChange={e => onChange(Number(e.target.value))} className={`w-full accent-${color}-500`} /><div className="mt-2 flex justify-between text-[10px] text-slate-600"><span>{min}{suffix}</span><span>{max}{suffix}</span></div></div>;
+}
+
+function SlidersIcon() { return <div className="rounded-lg bg-purple-500/10 p-2 text-purple-300"><Layers3 size={16} /></div>; }
+function MiniStat({ icon: Icon, value, label, color }: { icon: React.ElementType; value: string; label: string; color: string }) { return <div className="flex items-center gap-4 rounded-xl border border-white/[.06] bg-white/[.025] p-4"><span className={`rounded-lg bg-${color}-500/10 p-2.5 text-${color}-300`}><Icon size={17} /></span><div><div className="text-lg font-semibold text-white">{value}</div><div className="text-[10px] text-slate-500">{label}</div></div></div>; }
