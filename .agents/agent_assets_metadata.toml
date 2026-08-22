@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "yoIIenxkvZVtKXWfC6ojb"
+uri = "file://exports/sla-ai-platform-updated.zip"
+type = "unspecified"
+title = "SLA AI Platform — Updated Project ZIP"
+description = "Complete updated source archive including the animated landing page, owned Node.js in-memory backend, API wiring, public assets, configuration, README, and package lockfile."
+logical_id = "3d4ba963-f9d2-4b5c-aff2-1dd06b6d1022"
+content_hash = "sha256:485528f5f3adfd9e56a38afd3c672b771e7963c775eca12123a0cb28f455aca9"
+size = 146272
+mtime_ms = 1787410445182
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:96508664-4b48-42e0-bd49-1f68eb519d12/3d4ba963-f9d2-4b5c-aff2-1dd06b6d1022/10f3bdc3-326f-42ac-8ade-85349eeeee98"
+storage_version_token = "1787410454180678"
+content_type = "application/octet-stream"
