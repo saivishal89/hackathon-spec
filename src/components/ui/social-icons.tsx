@@ -1,4 +1,5 @@
-// Social Icons Component with animated hover tooltip
+"use client";
+
 import React, { useState } from "react";
 
 const socials = [
@@ -12,7 +13,7 @@ const socials = [
     ),
   },
   {
-    name: "X (Twitter)",
+    name: "X",
     href: "https://x.com",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="size-[18px]">
@@ -30,11 +31,11 @@ const socials = [
     ),
   },
   {
-    name: "Discord",
-    href: "https://discord.com",
+    name: "Dribbble",
+    href: "https://dribbble.com",
     icon: (
       <svg viewBox="0 0 24 24" fill="currentColor" className="size-[18px]">
-        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+        <path d="M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308 2.3-1.555 3.936-4.02 4.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4 1.73 1.358 3.92 2.166 6.29 2.166 1.42 0 2.77-.29 4-.814zm-11.62-2.58c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.17zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702-1.81-1.61-4.19-2.586-6.795-2.586-.825 0-1.63.1-2.4.285zm10.335 3.483c-.218.29-1.935 2.493-5.724 4.04.24.49.47.985.68 1.486.08.18.15.36.22.53 3.41-.43 6.8.26 7.14.33-.02-2.42-.88-4.64-2.31-6.38z" />
       </svg>
     ),
   },
@@ -46,6 +47,7 @@ export function SocialIcons() {
   return (
     <div className="relative flex items-center gap-0.5 px-1.5 py-1.5 rounded-2xl bg-neutral-950/90 border border-white/[0.08] backdrop-blur-md">
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+
       {socials.map((social, index) => (
         <a
           key={social.name}
@@ -62,6 +64,7 @@ export function SocialIcons() {
               hoveredIndex === index ? "opacity-100 scale-100" : "opacity-0 scale-90"
             }`}
           />
+
           <span
             className={`relative z-10 transition-all duration-300 ease-out ${
               hoveredIndex === index ? "text-white scale-110" : "text-neutral-500"
@@ -69,16 +72,16 @@ export function SocialIcons() {
           >
             {social.icon}
           </span>
+
           <span
-            className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-[2px] rounded-full bg-indigo-400 transition-all duration-300 ease-out ${
+            className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-[2px] rounded-full bg-amber-400 transition-all duration-300 ease-out ${
               hoveredIndex === index ? "w-3 opacity-100" : "w-0 opacity-0"
             }`}
           />
+
           <span
             className={`absolute -top-10 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-lg bg-white text-neutral-950 text-[11px] font-medium whitespace-nowrap transition-all duration-300 ease-out shadow-lg z-30 ${
-              hoveredIndex === index
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-1 pointer-events-none"
+              hoveredIndex === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
             }`}
           >
             {social.name}
