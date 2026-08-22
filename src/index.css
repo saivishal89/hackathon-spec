@@ -57,3 +57,8 @@
     transform: scale(1);
   }
 }
+
+@keyframes spin {
+  from { transform: translateX(-50%) rotate(0deg) rotateX(62deg); }
+  to { transform: translateX(-50%) rotate(360deg) rotateX(62deg); }
+}
