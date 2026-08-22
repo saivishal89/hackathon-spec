@@ -5,6 +5,15 @@
 @layer base {
   :root {
     color-scheme: dark;
+    --bg-0: #09090b;
+    --bg-100: #18181b;
+    --bg-200: #27272a;
+    --bg-300: #3f3f46;
+    --text-100: #fafafa;
+    --text-200: #e4e4e7;
+    --text-300: #a1a1aa;
+    --text-400: #71717a;
+    --radius: 0.5rem;
   }
 
   body {
@@ -32,6 +41,39 @@
   }
 }
 
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-slide-in-1 {
+  animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-slide-in-2 {
+  animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-fade-slide-in-3 {
+  animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.24s forwards;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.animate-fade-slide-in-4 {
+  animation: fadeSlideIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.36s forwards;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
 @keyframes pulseGlow {
   0%, 100% {
     opacity: 1;
@@ -56,9 +98,4 @@
     opacity: 1;
     transform: scale(1);
   }
-}
-
-@keyframes spin {
-  from { transform: translateX(-50%) rotate(0deg) rotateX(62deg); }
-  to { transform: translateX(-50%) rotate(360deg) rotateX(62deg); }
 }

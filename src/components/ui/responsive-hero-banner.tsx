@@ -1,6 +1,6 @@
-// Responsive Hero Banner — SLA Risk Prediction Platform
+"use client";
+
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Play, ShieldAlert, Cpu, Activity, Zap, CheckCircle2 } from 'lucide-react';
 
 export interface NavLink {
   label: string;
@@ -9,247 +9,311 @@ export interface NavLink {
 }
 
 export interface Partner {
-  name: string;
-  badge: string;
-  category: string;
+  logoUrl?: string;
+  name?: string;
+  href?: string;
 }
 
 export interface ResponsiveHeroBannerProps {
+  logoUrl?: string;
+  backgroundImageUrl?: string;
   navLinks?: NavLink[];
   ctaButtonText?: string;
+  ctaButtonHref?: string;
   onCtaClick?: () => void;
-  badgeLabel?: string;
   badgeText?: string;
+  badgeLabel?: string;
   title?: string;
   titleLine2?: string;
   description?: string;
   primaryButtonText?: string;
+  primaryButtonHref?: string;
   onPrimaryClick?: () => void;
   secondaryButtonText?: string;
+  secondaryButtonHref?: string;
   onSecondaryClick?: () => void;
   partnersTitle?: string;
   partners?: Partner[];
 }
 
 export const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
+  logoUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/febf2421-4a9a-42d6-871d-ff4f9518021c_1600w.png",
+  backgroundImageUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0e2dbea0-c0a9-413f-a57b-af279633c0df_3840w.jpg",
   navLinks = [
-    { label: "Overview", href: "#problem", isActive: true },
+    { label: "Home", href: "#", isActive: true },
+    { label: "Problem", href: "#problem" },
     { label: "Risk Engine", href: "#risk-engine" },
     { label: "Transformation", href: "#transformation" },
-    { label: "Comparison", href: "#comparison" },
-    { label: "Workspaces", href: "#workspaces" },
+    { label: "Workspaces", href: "#workspaces" }
   ],
   ctaButtonText = "Launch Demo",
+  ctaButtonHref = "#",
   onCtaClick,
-  badgeLabel = "SLA AI 2.0",
-  badgeText = "Autonomous Breach Prevention & 1-Click Remediation",
+  badgeLabel = "New",
+  badgeText = "AI-Powered SLA Breach Risk Forecasting 2026",
   title = "Predict SLA Breaches",
   titleLine2 = "Before They Happen.",
-  description = "AI-powered SLA operations platform that forecasts breach risk percentages, explains root causes in real-time, and automatically helps engineering teams prevent SLA violations.",
+  description = "Experience proactive SLA operations like never before. Our advanced risk engine and multi-factor diagnostics make deadline management predictable, autonomous, and breach-free.",
   primaryButtonText = "Explore Operations Hub",
+  primaryButtonHref = "#",
   onPrimaryClick,
   secondaryButtonText = "Client Portal Demo",
+  secondaryButtonHref = "#",
   onSecondaryClick,
-  partnersTitle = "Engineered for mission-critical enterprise infrastructure",
+  partnersTitle = "Partnering with leading enterprise engineering teams worldwide",
   partners = [
-    { name: "Kubernetes", badge: "Cloud Native", category: "Orchestration" },
-    { name: "FastAPI", badge: "High Velocity", category: "Core Backend" },
-    { name: "PostgreSQL", badge: "ACID Relational", category: "Persistence" },
-    { name: "Redis", badge: "Sub-millisecond", category: "Cache & Queue" },
-    { name: "Docker", badge: "Multi-Container", category: "Architecture" },
+    { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/f7466370-2832-4fdd-84c2-0932bb0dd850_800w.png", name: "Kubernetes", href: "#" },
+    { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0a9a71ec-268b-4689-a510-56f57e9d4f13_1600w.png", name: "PostgreSQL", href: "#" },
+    { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/a9ed4369-748a-49f8-9995-55d6c876bbff_1600w.png", name: "FastAPI", href: "#" },
+    { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0d8966a4-8525-4e11-9d5d-2d7390b2c798_1600w.png", name: "Redis", href: "#" },
+    { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/2ed33c8b-b8b2-4176-967f-3d785fed07d8_1600w.png", name: "Docker", href: "#" }
   ]
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleCta = (e: React.MouseEvent) => {
+    if (onCtaClick) {
+      e.preventDefault();
+      onCtaClick();
+    }
+  };
+
+  const handlePrimary = (e: React.MouseEvent) => {
+    if (onPrimaryClick) {
+      e.preventDefault();
+      onPrimaryClick();
+    }
+  };
+
+  const handleSecondary = (e: React.MouseEvent) => {
+    if (onSecondaryClick) {
+      e.preventDefault();
+      onSecondaryClick();
+    }
+  };
+
   return (
-    <section className="w-full isolate min-h-screen overflow-hidden relative bg-[#060911] text-white flex flex-col justify-between">
-      
-      {/* Background Animated Gradient Mesh & Cyberpunk Grid */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.25),rgba(255,255,255,0))]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-500/10 blur-[150px] pointer-events-none rounded-full" />
+    <section className="w-full isolate min-h-screen overflow-hidden relative flex flex-col justify-between bg-black">
+      {/* Background Hero Image */}
+      <img
+        src={backgroundImageUrl}
+        alt="SLA Platform Background"
+        className="w-full h-full object-cover absolute top-0 right-0 bottom-0 left-0 brightness-[0.75]"
+      />
+      <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30 bg-gradient-to-b from-black/40 via-transparent to-black/90" />
 
-      {/* Navigation Header */}
-      <header className="z-30 w-full relative pt-4 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          
-          {/* Logo Brand */}
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={onCtaClick}>
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.5)]">
-              <Sparkles className="h-5 w-5 text-white animate-pulse" />
-            </div>
-            <div>
-              <span className="font-extrabold tracking-tight text-lg text-white">SLA AI</span>
-              <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-indigo-400 ml-1.5 px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">
-                PROACTIVE
+      {/* Header Navigation */}
+      <header className="z-20 xl:top-4 relative">
+        <div className="mx-6">
+          <div className="flex items-center justify-between pt-4">
+            
+            {/* Logo Brand / Icon */}
+            <a
+              href="#"
+              onClick={handleCta}
+              className="inline-flex items-center gap-2.5 text-white no-underline group"
+            >
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-base shadow-[0_0_20px_rgba(99,102,241,0.5)]">
+                ⚡
+              </div>
+              <span className="font-extrabold tracking-tight text-lg text-white font-sans">
+                SLA AI
               </span>
+            </a>
+
+            {/* Desktop Capsule Navigation */}
+            <nav className="hidden md:flex items-center gap-2">
+              <div className="flex items-center gap-1 rounded-full bg-white/5 px-1 py-1 ring-1 ring-white/10 backdrop-blur-md shadow-2xl">
+                {navLinks.map((link, index) => (
+                  <a
+                    key={index}
+                    href={link.href}
+                    className={`px-3 py-2 text-sm font-medium hover:text-white font-sans transition-colors ${
+                      link.isActive ? 'text-white/90' : 'text-white/80'
+                    }`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+                <a
+                  href={ctaButtonHref}
+                  onClick={handleCta}
+                  className="ml-1 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-2 text-sm font-medium text-neutral-900 hover:bg-white/90 font-sans transition-colors cursor-pointer shadow-lg shadow-white/10"
+                >
+                  <span>{ctaButtonText}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                  >
+                    <path d="M7 7h10v10" />
+                    <path d="M7 17 17 7" />
+                  </svg>
+                </a>
+              </div>
+            </nav>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15 backdrop-blur-md"
+              aria-expanded={mobileMenuOpen}
+              aria-label="Toggle menu"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 text-white/90"
+              >
+                <path d="M4 5h16" />
+                <path d="M4 12h16" />
+                <path d="M4 19h16" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden mt-3 p-4 rounded-2xl bg-black/90 ring-1 ring-white/15 backdrop-blur-xl space-y-2 animate-fade-in">
+              {navLinks.map((link, idx) => (
+                <a
+                  key={idx}
+                  href={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-3 py-2 text-sm text-white/80 hover:text-white rounded-lg hover:bg-white/10"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href={ctaButtonHref}
+                onClick={(e) => {
+                  setMobileMenuOpen(false);
+                  handleCta(e);
+                }}
+                className="block text-center mt-2 py-2.5 rounded-full bg-white font-bold text-xs text-neutral-900"
+              >
+                {ctaButtonText}
+              </a>
             </div>
-          </div>
-
-          {/* Desktop Nav Links */}
-          <nav className="hidden md:flex items-center gap-1.5 rounded-full bg-slate-900/80 p-1.5 ring-1 ring-white/10 backdrop-blur-xl shadow-2xl">
-            {navLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.href}
-                className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white rounded-full hover:bg-white/5 transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
-            <button
-              onClick={onCtaClick}
-              className="ml-2 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-xs font-bold text-white hover:from-indigo-400 hover:to-purple-500 shadow-lg shadow-indigo-500/25 transition-all"
-            >
-              <span>{ctaButtonText}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/80 ring-1 ring-white/15 text-white"
-            aria-label="Toggle menu"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          )}
         </div>
-
-        {/* Mobile Dropdown */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3 p-4 rounded-2xl bg-slate-900/95 border border-slate-800 backdrop-blur-xl space-y-2 animate-fadeIn">
-            {navLinks.map((link, idx) => (
-              <a
-                key={idx}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 text-sm text-slate-300 hover:text-white rounded-lg hover:bg-slate-800"
-              >
-                {link.label}
-              </a>
-            ))}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onCtaClick && onCtaClick();
-              }}
-              className="w-full mt-2 py-2.5 rounded-xl bg-indigo-600 font-bold text-xs text-white"
-            >
-              {ctaButtonText}
-            </button>
-          </div>
-        )}
       </header>
 
-      {/* Hero Content Area */}
-      <div className="z-10 relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-12 text-center flex-1 flex flex-col justify-center">
-        
-        {/* Top Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-slate-900/90 border border-indigo-500/30 px-3.5 py-1.5 backdrop-blur-md shadow-xl mx-auto">
-          <span className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 rounded-full py-0.5 px-2">
-            {badgeLabel}
-          </span>
-          <span className="text-xs sm:text-sm font-medium text-slate-200">
-            {badgeText}
-          </span>
-        </div>
-
-        {/* Main Headings */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.1] max-w-4xl mx-auto">
-          <span className="text-white drop-shadow-sm">{title}</span>
-          <br />
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
-            {titleLine2}
-          </span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-sm sm:text-lg text-slate-400 max-w-2xl mt-6 mx-auto leading-relaxed">
-          {description}
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row sm:gap-4 mt-8 gap-3 items-center justify-center">
-          <button
-            onClick={onPrimaryClick}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 hover:bg-indigo-500 text-sm font-bold text-white bg-indigo-600 shadow-xl shadow-indigo-600/30 rounded-2xl py-3.5 px-7 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <span>{primaryButtonText}</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
-          
-          <button
-            onClick={onSecondaryClick}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900/80 border border-slate-700/80 px-6 py-3.5 text-sm font-semibold text-slate-200 hover:text-white hover:bg-slate-800 transition-all"
-          >
-            <Play className="h-4 w-4 text-cyan-400 fill-cyan-400/20" />
-            <span>{secondaryButtonText}</span>
-          </button>
-        </div>
-
-        {/* Real-time Telemetry Stats Pill */}
-        <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md text-left">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span>SLA Target</span>
-              <ShieldAlert className="h-3.5 w-3.5 text-emerald-400" />
+      {/* Main Hero Body */}
+      <div className="z-10 relative flex-1 flex flex-col justify-center">
+        <div className="sm:pt-20 md:pt-28 lg:pt-32 max-w-7xl mx-auto pt-16 px-6 pb-16">
+          <div className="mx-auto max-w-3xl text-center">
+            
+            {/* Badge */}
+            <div className="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 px-2.5 py-2 ring-1 ring-white/15 backdrop-blur animate-fade-slide-in-1">
+              <span className="inline-flex items-center text-xs font-medium text-neutral-900 bg-white/90 rounded-full py-0.5 px-2 font-sans">
+                {badgeLabel}
+              </span>
+              <span className="text-sm font-medium text-white/90 font-sans">
+                {badgeText}
+              </span>
             </div>
-            <div className="text-lg font-bold text-white">99.4%</div>
-            <div className="text-[10px] text-emerald-400 font-semibold">+4.2% compliance</div>
+
+            {/* Main Hero Headline */}
+            <h1 className="sm:text-5xl md:text-6xl lg:text-7xl leading-tight text-4xl text-white tracking-tight font-normal animate-fade-slide-in-2 drop-shadow-md">
+              {title}
+              <br className="hidden sm:block" />
+              {titleLine2}
+            </h1>
+
+            {/* Description Subtitle */}
+            <p className="sm:text-lg animate-fade-slide-in-3 text-base text-white/80 max-w-2xl mt-6 mx-auto leading-relaxed drop-shadow">
+              {description}
+            </p>
+
+            {/* Dual Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:gap-4 mt-10 gap-3 items-center justify-center animate-fade-slide-in-4">
+              <a
+                href={primaryButtonHref}
+                onClick={handlePrimary}
+                className="inline-flex items-center gap-2 hover:bg-white/15 text-sm font-medium text-white bg-white/10 ring-white/15 ring-1 rounded-full py-3 px-5 font-sans transition-colors cursor-pointer"
+              >
+                <span>{primaryButtonText}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </a>
+              <a
+                href={secondaryButtonHref}
+                onClick={handleSecondary}
+                className="inline-flex items-center gap-2 rounded-full bg-transparent px-5 py-3 text-sm font-medium text-white/90 hover:text-white font-sans transition-colors cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
+                  <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+                </svg>
+                <span>{secondaryButtonText}</span>
+              </a>
+            </div>
+
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md text-left">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span>Risk Prediction</span>
-              <Activity className="h-3.5 w-3.5 text-indigo-400" />
+          {/* Partner & Integrations Bar */}
+          <div className="mx-auto mt-16 max-w-5xl">
+            <p className="animate-fade-slide-in-1 text-sm text-white/70 text-center">
+              {partnersTitle}
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 animate-fade-slide-in-2 text-white/70 mt-6 items-center justify-items-center gap-4">
+              {partners.map((partner, index) => (
+                <a
+                  key={index}
+                  href={partner.href || "#"}
+                  className="inline-flex items-center justify-center bg-center w-[120px] h-[36px] bg-cover rounded-full opacity-80 hover:opacity-100 transition-opacity"
+                  style={{ backgroundImage: partner.logoUrl ? `url(${partner.logoUrl})` : undefined }}
+                  aria-label={partner.name || `Partner ${index + 1}`}
+                >
+                  {!partner.logoUrl && partner.name && (
+                    <span className="text-xs font-mono font-bold text-white/90">{partner.name}</span>
+                  )}
+                </a>
+              ))}
             </div>
-            <div className="text-lg font-bold text-white">Real-Time</div>
-            <div className="text-[10px] text-indigo-400 font-semibold">Multi-factor engine</div>
           </div>
 
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md text-left">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span>1-Click Action</span>
-              <Zap className="h-3.5 w-3.5 text-cyan-400" />
-            </div>
-            <div className="text-lg font-bold text-white">Auto-Mitigate</div>
-            <div className="text-[10px] text-cyan-400 font-semibold">-38% risk drop</div>
-          </div>
-
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 backdrop-blur-md text-left">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
-              <span>Customer CSAT</span>
-              <CheckCircle2 className="h-3.5 w-3.5 text-purple-400" />
-            </div>
-            <div className="text-lg font-bold text-white">4.8 / 5.0</div>
-            <div className="text-[10px] text-purple-400 font-semibold">Post-resolution loop</div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Tech Stack / Partner Bar */}
-      <div className="z-10 relative max-w-5xl mx-auto px-4 pb-8 w-full">
-        <p className="text-xs uppercase tracking-widest text-slate-500 font-mono text-center mb-4">
-          {partnersTitle}
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
-          {partners.map((partner, index) => (
-            <div
-              key={index}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs font-semibold text-slate-300"
-            >
-              <Cpu className="h-3.5 w-3.5 text-indigo-400" />
-              <span>{partner.name}</span>
-              <span className="text-[10px] text-slate-500 font-normal">({partner.category})</span>
-            </div>
-          ))}
         </div>
       </div>
-
     </section>
   );
 };
