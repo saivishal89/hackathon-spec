@@ -47,6 +47,25 @@ npm install
 npm run dev
 ```
 
+`npm run dev` starts both the Vite frontend on port 5000 and the owned Node.js API
+on port 3001. The frontend proxies `/api` requests to the API. The current API
+uses in-memory storage seeded from `server/index.mjs`, so data resets whenever
+the backend restarts.
+
+### Owned API
+
+The API exposes:
+
+- `GET /api/health`
+- `GET /api/requests`
+- `GET /api/requests/:id`
+- `POST /api/requests`
+- `PATCH /api/requests/:id`
+- `GET /api/policies`
+- `PUT /api/policies/:id`
+
+The dashboard sends the active user ID in `X-User-Id` for request scoping.
+
 ### Build for Production
 ```bash
 npm run build

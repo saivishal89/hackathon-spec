@@ -30,6 +30,25 @@ export class ApiClient {
     return MOCK_SLA_POLICIES;
   })();
 
+  private static headers(session: UserSession | null): HeadersInit {
+    return {
+      'Content-Type': 'application/json',
+      ...(session?.user.id ? { 'X-User-Id': session.user.id } : {}),
+    };
+  }
+
+  private static async backend<T>(path: string, init: RequestInit = {}): Promise<ApiResponse<T>> {
+    try {
+      const response = await fetch(path, { ...init, headers: { 'Content-Type': 'application/json', ...(init.headers || {}) } });
+      const data = await response.json();
+      return response.ok
+        ? { status: response.status as ApiResponse<T>['status'], data }
+        : { status: response.status as ApiResponse<T>['status'], error: data.error || 'Backend request failed' };
+    } catch {
+      return { status: 500, error: 'Unable to reach the SLA AI backend.' };
+    }
+  }
+
   /**
    * Helper to verify if session has a specific permission
    */
@@ -82,6 +101,11 @@ export class ApiClient {
     if (!session) {
       return { status: 401, error: 'Unauthorized' };
     }
+
+    const backendResponse = await this.backend<ServiceRequest[]>('/api/requests', {
+      headers: this.headers(session),
+    });
+    if (backendResponse.status !== 500) return backendResponse;
 
     if (session.user.role === 'ADMIN' || session.user.role === 'AGENT') {
       AuditLogger.log({
@@ -150,6 +174,13 @@ export class ApiClient {
     const permCheck = this.verifyPermission(session, 'CREATE_REQUEST', 'CreateRequest');
     if (permCheck) return permCheck as any;
 
+    const backendResponse = await this.backend<ServiceRequest>('/api/requests', {
+      method: 'POST',
+      headers: this.headers(session),
+      body: JSON.stringify(requestData),
+    });
+    if (backendResponse.status !== 500) return backendResponse;
+
     const newTicket: ServiceRequest = {
       id: `req-${Date.now()}`,
       ticketNumber: `SLA-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -214,6 +245,13 @@ export class ApiClient {
     const permCheck = this.verifyPermission(session, 'REASSIGN_REQUEST', `ReassignRequest/${requestId}`);
     if (permCheck) return permCheck as any;
 
+    const backendResponse = await this.backend<ServiceRequest>(`/api/requests/${requestId}`, {
+      method: 'PATCH',
+      headers: this.headers(session),
+      body: JSON.stringify({ assigneeId }),
+    });
+    if (backendResponse.status !== 500) return backendResponse;
+
     const targetUser = MOCK_USERS.find(u => u.id === assigneeId);
     if (!targetUser) return { status: 400, error: 'Target assignee not found' };
 
@@ -249,6 +287,13 @@ export class ApiClient {
     const permCheck = this.verifyPermission(session, 'MANAGE_SLA_POLICIES', `SLAPolicy/${policy.id}`);
     if (permCheck) return permCheck as any;
 
+    const backendResponse = await this.backend<SLAPolicy>(`/api/policies/${policy.id}`, {
+      method: 'PUT',
+      headers: this.headers(session),
+      body: JSON.stringify(policy),
+    });
+    if (backendResponse.status !== 500) return backendResponse;
+
     this.policiesStore = this.policiesStore.map(p => (p.id === policy.id ? policy : p));
     localStorage.setItem('sla_ai_policies_v1', JSON.stringify(this.policiesStore));
 
@@ -273,6 +318,13 @@ export class ApiClient {
   public static async executeAiAction(session: UserSession | null, requestId: string, actionId: string): Promise<ApiResponse<ServiceRequest>> {
     const permCheck = this.verifyPermission(session, 'EXECUTE_AI_REMEDIATION', `ExecuteAiAction/${requestId}`);
     if (permCheck) return permCheck as any;
+
+    const backendResponse = await this.backend<ServiceRequest>(`/api/requests/${requestId}`, {
+      method: 'PATCH',
+      headers: this.headers(session),
+      body: JSON.stringify({ lastAiActionId: actionId, riskTrend: 'decreasing' }),
+    });
+    if (backendResponse.status !== 500) return backendResponse;
 
     const req = this.requestsStore.find(r => r.id === requestId);
     if (!req) return { status: 404, error: 'Request not found' };
