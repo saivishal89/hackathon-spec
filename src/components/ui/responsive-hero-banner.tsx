@@ -290,28 +290,6 @@ export const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
 
           </div>
 
-          {/* Partner & Integrations Bar */}
-          <div className="mx-auto mt-16 max-w-5xl">
-            <p className="animate-fade-slide-in-1 text-sm text-white/70 text-center">
-              {partnersTitle}
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 animate-fade-slide-in-2 text-white/70 mt-6 items-center justify-items-center gap-4">
-              {partners.map((partner, index) => (
-                <a
-                  key={index}
-                  href={partner.href || "#"}
-                  className="inline-flex items-center justify-center bg-center w-[120px] h-[36px] bg-cover rounded-full opacity-80 hover:opacity-100 transition-opacity"
-                  style={{ backgroundImage: partner.logoUrl ? `url(${partner.logoUrl})` : undefined }}
-                  aria-label={partner.name || `Partner ${index + 1}`}
-                >
-                  {!partner.logoUrl && partner.name && (
-                    <span className="text-xs font-mono font-bold text-white/90">{partner.name}</span>
-                  )}
-                </a>
-              ))}
-            </div>
-          </div>
-
         </div>
       </div>
     </section>
