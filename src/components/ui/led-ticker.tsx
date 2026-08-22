@@ -1,4 +1,4 @@
-// Pixel LED Display — Originkit / SLA AI
+// Pixel LED Display — SLA AI Proactive Telemetry
 import React, { useRef, useEffect, useMemo, type CSSProperties } from "react";
 
 type Direction = "left" | "right";
@@ -51,8 +51,8 @@ function rowsForQuantity(quantity: number): number {
   return Math.max(1, Math.round(rows));
 }
 
-const WORD_GAP_EXTRA = 3;
-const SEPARATOR_PAD_EXTRA = 5;
+const WORD_GAP_EXTRA = 2;
+const SEPARATOR_PAD_EXTRA = 4;
 
 const FONT: number[][] = [
   [0x00, 0x00, 0x00, 0x00, 0x00], // space
@@ -129,7 +129,6 @@ const EXTRA: Record<string, number[]> = {
   "★": [0x24, 0x2a, 0x7f, 0x2a, 0x24],
   "→": [0x08, 0x08, 0x2a, 0x1c, 0x08],
   "←": [0x08, 0x1c, 0x2a, 0x08, 0x08],
-  "⚡": [0x10, 0x38, 0x7f, 0x0e, 0x04],
 };
 
 const FOLD: Record<string, string> = {
@@ -201,29 +200,37 @@ function buildColumns(
 }
 
 export function LEDTicker({
-  items = ["SLA RISK ENGINE", "PREDICT BEFORE DEADLINE", "AUTONOMOUS TRIAGE"],
+  items = [
+    "SLA BREACH RISK",
+    "PREDICT BEFORE DEADLINE",
+    "ACT BEFORE IMPACT",
+    "AUTONOMOUS TRIAGE",
+    "PREVENT PENALTIES",
+  ],
   separator = "●",
-  speed = 24,
+  speed = 22,
   direction = "left",
-  textSize = 90,
-  dotSize = 14,
-  dotQuantity = 8,
+  textSize = 72,
+  dotSize = 7,
+  dotQuantity = 10,
   spread = 1,
   dotShape = "round",
-  onColor = "#6366F1",
-  offColor = "rgba(255, 255, 255, 0.03)",
+  onColor = "#F59E0B", // Bright Glowing Sunset Amber to match Photo 1
+  offColor = "rgba(245, 158, 11, 0.08)",
   glow = true,
-  glowOptions = { strength: 70, size: 8 },
+  glowOptions = { strength: 90, size: 10 },
   flicker = true,
-  flickerOptions = { strength: 25, speed: 40 },
+  flickerOptions = { strength: 20, speed: 30 },
   style,
   className = "",
 }: LEDTickerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const glowStrength = glow ? (glowOptions?.strength ?? 0) / 100 : 0;
-  const glowSize = glow ? (glowOptions?.size ?? 0) / 10 : 0;
-  const flickerStrength = flicker ? (flickerOptions?.strength ?? 0) / 100 : 0;
-  const flickerSpeed = flicker ? (flickerOptions?.speed ?? 0) / 10 : 0;
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const glowStrength = glow ? (glowOptions?.strength ?? 80) / 100 : 0;
+  const glowSize = glow ? (glowOptions?.size ?? 8) / 10 : 0;
+  const flickerStrength = flicker ? (flickerOptions?.strength ?? 20) / 100 : 0;
+  const flickerSpeed = flicker ? (flickerOptions?.speed ?? 30) / 10 : 0;
   const itemsKey = JSON.stringify(items ?? []);
 
   const columns = useMemo(
@@ -236,9 +243,10 @@ export function LEDTicker({
     if (!el) return;
     const context = el.getContext("2d");
     if (!context) return;
+
     const canvas: HTMLCanvasElement = el;
     const ctx: CanvasRenderingContext2D = context;
-    const total = columns.length;
+    const total = Math.max(1, columns.length);
     let alive = true;
     let raf = 0;
     let last = 0;
@@ -254,16 +262,19 @@ export function LEDTicker({
 
     function measure() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = canvas.clientWidth || 600;
-      const h = canvas.clientHeight || 120;
-      canvas.width = Math.max(1, Math.round(w * dpr));
-      canvas.height = Math.max(1, Math.round(h * dpr));
+      const containerW = containerRef.current?.clientWidth || canvas.clientWidth || 800;
+      const containerH = containerRef.current?.clientHeight || canvas.clientHeight || 90;
+
+      canvas.width = Math.max(1, Math.round(containerW * dpr));
+      canvas.height = Math.max(1, Math.round(containerH * dpr));
+
       boardRows = rowsForQuantity(dotQuantity);
       scale = boardRows / ROWS;
-      cell = Math.max(1, (textSize / boardRows) * dpr);
-      radius = (dotSize * dpr) / 2;
-      visibleCols = Math.ceil(canvas.width / cell) + 1;
-      yPad = (canvas.height - boardRows * cell) / 2;
+      cell = Math.max(2, (canvas.height / (boardRows + 1)));
+      radius = Math.max(1.5, Math.min(cell * 0.42, (dotSize * dpr) / 2));
+      visibleCols = Math.ceil(canvas.width / cell) + 2;
+      yPad = Math.max(0, (canvas.height - boardRows * cell) / 2);
+
       rowSource = [];
       for (let row = 0; row < boardRows; row++) {
         rowSource.push(Math.min(ROWS - 1, Math.floor(row / scale)));
@@ -284,13 +295,14 @@ export function LEDTicker({
       const w = canvas.width;
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
+
       const boardOffset = offset * scale;
       const whole = Math.floor(boardOffset);
       const shift = (boardOffset - whole) * cell;
       const sign = direction === "right" ? -1 : 1;
       const xBase = -sign * shift;
 
-      // Draw Background Off Dots
+      // 1. Draw Inactive Off-Dots Background Grid
       ctx.beginPath();
       for (let cx = 0; cx < visibleCols; cx++) {
         const px = xBase + cx * cell + cell / 2;
@@ -301,7 +313,7 @@ export function LEDTicker({
       ctx.fillStyle = offColor;
       ctx.fill();
 
-      // Draw Active On Dots
+      // 2. Draw Active Glowing On-Dots
       ctx.beginPath();
       for (let cx = 0; cx < visibleCols; cx++) {
         const source = Math.floor((cx + sign * whole) / scale);
@@ -319,20 +331,19 @@ export function LEDTicker({
         flickerStrength > 0
           ? 1 - flickerStrength * flickerNoise((time / 1000) * flickerSpeed)
           : 1;
+
       ctx.globalAlpha = wobble;
       ctx.fillStyle = onColor;
 
       if (glowStrength > 0) {
         ctx.save();
-        ctx.globalCompositeOperation = "lighter";
         ctx.shadowColor = onColor;
-        ctx.shadowBlur = radius * 2 * glowSize;
+        ctx.shadowBlur = Math.max(8, radius * 3 * glowSize);
         ctx.globalAlpha = wobble * glowStrength;
         ctx.fill();
         ctx.restore();
-        ctx.globalAlpha = wobble;
-        ctx.fillStyle = onColor;
       }
+
       ctx.fill();
       ctx.globalAlpha = 1;
     }
@@ -350,12 +361,12 @@ export function LEDTicker({
     draw(0);
 
     let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined") {
+    if (typeof ResizeObserver !== "undefined" && containerRef.current) {
       ro = new ResizeObserver(() => {
         measure();
         draw(last);
       });
-      ro.observe(canvas);
+      ro.observe(containerRef.current);
     }
 
     raf = requestAnimationFrame(frame);
@@ -381,11 +392,11 @@ export function LEDTicker({
   ]);
 
   return (
-    <div className={`w-full overflow-hidden ${className}`}>
+    <div ref={containerRef} className={`w-full relative overflow-hidden flex items-center ${className}`} style={{ minHeight: '80px', ...style }}>
       <canvas
         ref={canvasRef}
+        className="w-full h-full block"
         style={{
-          ...style,
           display: "block",
           width: "100%",
           height: "100%",
