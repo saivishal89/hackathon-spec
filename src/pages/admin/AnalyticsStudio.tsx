@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -10,7 +10,12 @@ import {
   Activity,
   Zap,
   Filter,
-  Download
+  Download,
+  Star,
+  MessageSquare,
+  Smile,
+  ThumbsUp,
+  HeartHandshake
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -31,6 +36,8 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { useToast } from '../../components/ui/Toast';
+import { ApiClient, FeedbackStats } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 const COMPLIANCE_30D_DATA = [
   { day: 'Day 1', compliance: 98.4, target: 99.0, incidents: 14, breaches: 0 },
@@ -59,7 +66,57 @@ const RISK_PIE_DATA = [
 
 export function AnalyticsStudio() {
   const { showToast } = useToast();
+  const { session } = useAuth();
   const [timeRange, setTimeRange] = useState<'24H' | '7D' | '30D' | '90D'>('30D');
+  const [feedbackStats, setFeedbackStats] = useState<FeedbackStats>({
+    averageCsat: 4.8,
+    totalFeedbacks: 14,
+    responseQualityPercentage: 94.0,
+    slaSatisfactionPercentage: 91.0,
+    ratingDistribution: { 5: 11, 4: 2, 3: 1, 2: 0, 1: 0 },
+    recentFeedbacks: [
+      {
+        id: 'fb-101',
+        requestId: 'req-103',
+        userName: 'Alex Morgan (FinTech Global Systems)',
+        rating: 5,
+        responseQualityRating: 5,
+        slaSatisfactionRating: 5,
+        comment: 'Outstanding response time! Elena renewed our SSO cert with zero downtime. SLA response exceeded expectations.',
+        createdAt: '2 hours ago',
+      },
+      {
+        id: 'fb-102',
+        requestId: 'req-104',
+        userName: 'Devin Thorne (FinTech Global Systems)',
+        rating: 5,
+        responseQualityRating: 5,
+        slaSatisfactionRating: 4,
+        comment: 'Proactive mitigation warning prevented our ingress bottleneck. Very impressed by the automated alert.',
+        createdAt: '1 day ago',
+      },
+      {
+        id: 'fb-103',
+        requestId: 'req-105',
+        userName: 'Rachel Chen (CloudScale Inc)',
+        rating: 4,
+        responseQualityRating: 4,
+        slaSatisfactionRating: 5,
+        comment: 'Great communication in the support audit thread. Resolution within 3 hours.',
+        createdAt: '3 days ago',
+      }
+    ]
+  });
+
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      const response = await ApiClient.getFeedbackStats(session);
+      if (response.status === 200 && response.data) {
+        setFeedbackStats(response.data);
+      }
+    };
+    fetchFeedback();
+  }, [session]);
 
   return (
     <div className="space-y-6">
@@ -76,10 +133,10 @@ export function AnalyticsStudio() {
             </span>
           </div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">
-            Visual Analytics & MTTR Performance Studio
+            Visual Analytics & SLA Intelligence Studio
           </h2>
           <p className="text-xs text-slate-400 mt-1">
-            Deep-dive operational metrics, resolution velocity benchmarks, and SLA compliance forecasting.
+            Deep-dive operational metrics, resolution velocity benchmarks, SLA compliance forecasting, and customer feedback loops.
           </p>
         </div>
 
@@ -216,6 +273,115 @@ export function AnalyticsStudio() {
               <div key={item.name} className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                 <span className="text-slate-300 truncate">{item.name}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+      </div>
+
+      {/* 3. Customer Satisfaction & Feedback Intelligence Hub */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <HeartHandshake className="h-5 w-5 text-indigo-400" />
+          <h3 className="text-base font-bold text-white tracking-tight">
+            Customer Feedback & Post-Resolution CSAT Intelligence
+          </h3>
+          <span className="text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+            Product Feedback Loop
+          </span>
+        </div>
+
+        {/* CSAT Metric Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          
+          <Card variant="glass" className="p-5 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center flex-shrink-0">
+              <Star className="h-6 w-6 fill-amber-400 text-amber-400" />
+            </div>
+            <div>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block">
+                Average CSAT Score
+              </span>
+              <div className="text-2xl font-extrabold text-white font-mono mt-0.5">
+                {feedbackStats.averageCsat} <span className="text-sm font-normal text-slate-400">/ 5.0</span>
+              </div>
+              <span className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-0.5">
+                <TrendingUp className="h-3 w-3" /> Top decile benchmark
+              </span>
+            </div>
+          </Card>
+
+          <Card variant="glass" className="p-5 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+              <ThumbsUp className="h-6 w-6" />
+            </div>
+            <div>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block">
+                Response Quality Rating
+              </span>
+              <div className="text-2xl font-extrabold text-indigo-300 font-mono mt-0.5">
+                {feedbackStats.responseQualityPercentage}%
+              </div>
+              <span className="text-[10px] text-slate-400 mt-0.5 block">
+                Measured across all resolved tickets
+              </span>
+            </div>
+          </Card>
+
+          <Card variant="glass" className="p-5 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-2xl bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <div>
+              <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider block">
+                SLA Timeliness Satisfaction
+              </span>
+              <div className="text-2xl font-extrabold text-purple-300 font-mono mt-0.5">
+                {feedbackStats.slaSatisfactionPercentage}%
+              </div>
+              <span className="text-[10px] text-slate-400 mt-0.5 block">
+                Contract commitment alignment
+              </span>
+            </div>
+          </Card>
+
+        </div>
+
+        {/* Customer Quotes & Reviews List */}
+        <Card variant="glass" className="p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h4 className="text-sm font-bold text-white tracking-tight">Recent Client Resolution Reviews</h4>
+            <span className="text-xs text-slate-400 font-mono">{feedbackStats.totalFeedbacks} Total Recorded</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {feedbackStats.recentFeedbacks.map((fb, idx) => (
+              <div key={fb.id || idx} className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-2.5 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map(st => (
+                        <Star
+                          key={st}
+                          className={`h-3.5 w-3.5 ${
+                            fb.rating >= st ? 'fill-amber-400 text-amber-400' : 'text-slate-600'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-mono text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/30">
+                      {fb.requestId}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 italic leading-relaxed">
+                    "{fb.comment || 'Smooth resolution and fast response.'}"
+                  </p>
+                </div>
+                <div className="border-t border-slate-800/80 pt-2 flex items-center justify-between text-[10px] text-slate-400">
+                  <span className="font-semibold text-slate-300 truncate max-w-[140px]">{fb.userName}</span>
+                  <span>{fb.createdAt ? new Date(fb.createdAt).toLocaleDateString() : 'Recent'}</span>
+                </div>
               </div>
             ))}
           </div>

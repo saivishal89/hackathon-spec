@@ -37,6 +37,7 @@ interface RequestsContextType {
   executeRecommendedAction: (requestId: string, actionId: string) => Promise<boolean>;
   addComment: (requestId: string, message: string) => void;
   updatePolicy: (policy: SLAPolicy) => Promise<boolean>;
+  submitFeedback: (data: { requestId: string; rating: number; responseQualityRating: number; slaSatisfactionRating: number; comment: string }) => Promise<boolean>;
   resetToMockData: () => void;
   
   // Computed Stats
@@ -296,6 +297,34 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
+  // Submit Customer Feedback on resolved incident
+  const submitFeedback = async (data: { requestId: string; rating: number; responseQualityRating: number; slaSatisfactionRating: number; comment: string }): Promise<boolean> => {
+    const response = await ApiClient.submitFeedback(session, data);
+    if (response.status === 201 || response.status === 200) {
+      // Add feedback event to request timeline
+      setRequests(prev =>
+        prev.map(req => {
+          if (req.id !== data.requestId) return req;
+          const nowIso = new Date().toISOString();
+          const event: TimelineEvent = {
+            id: `tl-fb-${Date.now()}`,
+            timestamp: nowIso,
+            title: `Customer Feedback Submitted (${data.rating} ⭐)`,
+            description: `Requester rated experience ${data.rating}/5 stars: "${data.comment || 'No comment'}"`,
+            actor: { name: authUser?.name || 'Client', role: authUser?.role || 'CLIENT', avatar: authUser?.avatar },
+            type: 'comment',
+          };
+          return {
+            ...req,
+            timeline: [event, ...req.timeline],
+          };
+        })
+      );
+      return true;
+    }
+    return false;
+  };
+
   // Filtered Requests
   const filteredRequests = useMemo(() => {
     return requests.filter(req => {
@@ -404,6 +433,7 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
         executeRecommendedAction,
         addComment,
         updatePolicy,
+        submitFeedback,
         resetToMockData,
         stats,
       },

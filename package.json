@@ -4,7 +4,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server/index.mjs & vite",
+    "dev": "vite",
+    "dev:node": "node server/index.mjs & vite",
+    "server:python": "uvicorn app.main:app --app-dir backend --reload --port 8000",
+    "worker:python": "python -m app.worker",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

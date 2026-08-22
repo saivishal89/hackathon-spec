@@ -10,7 +10,9 @@ import {
   Send,
   User,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Star,
+  HeartHandshake
 } from 'lucide-react';
 import { useRequests } from '../../hooks/useRequests';
 import { ServiceRequest, RequestStatus } from '../../types/request';
@@ -19,6 +21,7 @@ import { Card } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { RiskBadge } from '../../components/requests/RiskBadge';
 import { RequestTimeline } from '../../components/requests/RequestTimeline';
+import { CustomerFeedbackModal } from '../../components/requests/CustomerFeedbackModal';
 import { calculateSLAProgress, calculateResponseSLAMetrics } from '../../utils/slaCalculator';
 import { getPriorityBadge, getStatusBadge, formatDateTime, formatTimeAgo } from '../../utils/formatters';
 
@@ -28,11 +31,15 @@ export interface ClientRequestDetailsProps {
 }
 
 export function ClientRequestDetails({ request, onNavigate }: ClientRequestDetailsProps) {
-  const { addComment } = useRequests();
+  const { addComment, submitFeedback } = useRequests();
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
   const sla = calculateSLAProgress(request);
   const responseSla = calculateResponseSLAMetrics(request);
   const priorityMeta = getPriorityBadge(request.priority);
   const statusMeta = getStatusBadge(request.status);
+
+  const isResolved = request.status === 'RESOLVED' || request.status === 'CLOSED';
 
   // Stepper milestones
   const steps: Array<{ status: RequestStatus; label: string }> = [
@@ -73,8 +80,47 @@ export function ClientRequestDetails({ request, onNavigate }: ClientRequestDetai
           </div>
         </div>
 
-        <RiskBadge score={request.riskScore} level={request.riskLevel} size="md" />
+        <div className="flex items-center gap-3">
+          {isResolved && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFeedbackOpen(true)}
+              className="text-xs bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20 shadow-sm"
+            >
+              <Star className="h-3.5 w-3.5 mr-1 fill-amber-400 text-amber-400" />
+              <span>Rate Resolution Experience</span>
+            </Button>
+          )}
+          <RiskBadge score={request.riskScore} level={request.riskLevel} size="md" />
+        </div>
       </div>
+
+      {/* Resolved Feedback Prompt Callout Banner */}
+      {isResolved && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-indigo-950/40 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center flex-shrink-0">
+              <HeartHandshake className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-white">This request has been marked as Resolved</h4>
+              <p className="text-xs text-slate-400">
+                Did our engineering team meet your expected SLA turnaround and quality standards?
+              </p>
+            </div>
+          </div>
+          <Button
+            variant="ai-glow"
+            size="sm"
+            onClick={() => setIsFeedbackOpen(true)}
+            className="text-xs whitespace-nowrap"
+          >
+            <Star className="h-3.5 w-3.5 mr-1.5 fill-amber-400 text-amber-400" />
+            Give SLA Feedback
+          </Button>
+        </div>
+      )}
 
       {/* SLA Progress Countdown Hero Box */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-[#111A2E] via-slate-900 to-slate-900 border border-indigo-500/30 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -256,6 +302,17 @@ export function ClientRequestDetails({ request, onNavigate }: ClientRequestDetai
         </div>
 
       </div>
+
+      {/* Customer Feedback Modal */}
+      <CustomerFeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        requestId={request.id}
+        ticketNumber={request.ticketNumber}
+        onSubmitFeedback={async (fbData) => {
+          await submitFeedback(fbData);
+        }}
+      />
 
     </div>
   );

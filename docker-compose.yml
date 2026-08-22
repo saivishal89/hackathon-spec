@@ -1,0 +1,140 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------
+  # 1. PostgreSQL Database Service
+  # ----------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: sla_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sla_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sla_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-sla_ai_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sla_user} -d ${POSTGRES_DB:-sla_ai_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sla_network
+
+  # ----------------------------------------------------
+  # 2. Redis In-Memory Cache & Queue
+  # ----------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: sla_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sla_network
+
+  # ----------------------------------------------------
+  # 3. FastAPI Python Backend API
+  # ----------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sla_backend
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sla_user}:${POSTGRES_PASSWORD:-sla_secure_password_2026}@postgres:5432/${POSTGRES_DB:-sla_ai_db}
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-sla_ai_super_secret_jwt_key_2026_enterprise_production_grade}
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=480
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AI_RISK_THRESHOLD=60.0
+      - AI_COST_OPTIMIZED_MODE=true
+      - ENVIRONMENT=production
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sla_network
+
+  # ----------------------------------------------------
+  # 4. Background SLA & AI Risk Monitor Worker
+  # ----------------------------------------------------
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sla_worker
+    restart: unless-stopped
+    command: ["python", "-m", "app.worker"]
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sla_user}:${POSTGRES_PASSWORD:-sla_secure_password_2026}@postgres:5432/${POSTGRES_DB:-sla_ai_db}
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=production
+    depends_on:
+      backend:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - sla_network
+
+  # ----------------------------------------------------
+  # 5. React Frontend Service
+  # ----------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sla_frontend
+    restart: unless-stopped
+    ports:
+      - "5000:80"
+    depends_on:
+      - backend
+    networks:
+      - sla_network
+
+  # ----------------------------------------------------
+  # 6. Nginx Gateway / Reverse Proxy (Port 80)
+  # ----------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: sla_gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - sla_network
+
+networks:
+  sla_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
