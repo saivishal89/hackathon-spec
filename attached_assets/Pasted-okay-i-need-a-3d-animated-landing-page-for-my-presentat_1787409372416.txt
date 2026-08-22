@@ -1,0 +1,200 @@
+okay i need a 3d animated landing page for my presentation i need best 3d animation landing page # SLA AI Platform — Master Architecture, Landing Page & Supabase Specification
+
+## 1. Executive Summary & Value Proposition
+**SLA AI Platform** is an enterprise-grade, proactive SLA governance and predictive incident intelligence system built with React 18, TypeScript, Tailwind CSS, Framer Motion, and Supabase.
+
+Instead of reactive incident ticketing, SLA AI Platform uses explainable AI heuristics, real-time workload-aware triage, and automated 1-click remediation to predict and prevent SLA breaches before they impact customer trust or trigger contractual financial penalties.
+
+---
+
+## 2. Core Frontend Design System & Theme
+- **Theme**: Premium Sleek Dark Mode with Glassmorphism & Neon Accent Glows.
+- **Background**: `#090D16` (Deep Obsidian Void) and `#0B0F19` (Elevated Card Layer).
+- **Accents**:
+  - Primary AI Accent: `Indigo-500` (`#6366F1`) & `Purple-500` (`#A855F7`)
+  - At-Risk / Warning: `Amber-500` (`#F59E0B`)
+  - Critical / Breached: `Rose-500` (`#F43F5E`)
+  - Success / On-Track: `Emerald-500` (`#10B981`)
+- **Libraries**:
+  - `lucide-react` for iconography
+  - `framer-motion` for micro-interactions, page transitions, and status pulses
+  - `recharts` for compliance analytics, risk distribution donuts, and latency area charts
+
+---
+
+## 3. High-Converting Landing Page Blueprint (`LandingPage.tsx`)
+
+The landing page must include the following 7 comprehensive sections:
+
+1. **Floating Navigation Bar**:
+   - Brand Logo with glowing Sparkles icon (`SLA AI Platform`).
+   - Navigation links (`Features`, `Live Simulator`, `SLA Policies`, `Pricing`, `Docs`).
+   - Quick Demo Switcher buttons: `Client Portal Demo` & `Launch Admin Center`.
+
+2. **Hero Section with Live Interactive Risk Simulator**:
+   - **Headline**: *"Predict SLA Breaches Before They Cost Millions."*
+   - **Subhead**: *"Transform reactive ticket firefighting into proactive AI governance with multi-factor risk diagnostics, real-time workload-aware triage, and automated 1-click remediation."*
+   - **Interactive Live Simulator Widget**: Allows visitors to drag sliders for:
+     - *SLA Elapsed Time (%)* (0% - 100%)
+     - *Incident Technical Complexity* (1 - 10)
+     - *Assigned Engineer Capacity* (Overloaded SRE vs. Available SRE)
+     - *Dynamic Output*: Instantly renders real-time dynamic Risk Score (0-100), Risk Level (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), plain-English root-cause diagnostics, and 1-Click AI Auto-Remediation button.
+
+3. **Feature Grid (Proactive vs. Reactive Comparison)**:
+   - *Autonomous AI Risk Engine*: Multi-factor weighting (Time 40%, SRE Queue Saturation 25%, Complexity 20%, Redundancy 15%).
+   - *Sub-Minute Live SLA Timers*: Real-time countdowns across Response & Resolution deadlines.
+   - *Live Pre-Triage Prediction*: Real-time ML heuristics predicting ticket priority and duration as the client types.
+   - *Penalty Defense Ledger*: Real-time calculations of financial breach penalties prevented.
+
+4. **Dual Operations Showcase (Tabbed Interactive Preview)**:
+   - **Tab A — Operations Command Center (`/admin`)**: Telemetry cards, at-risk prioritization queues, compliance radars, and SLA policy studio.
+   - **Tab B — Client Transparency Portal (`/client`)**: Live milestone stepper, transparent SLA countdowns, and real-time audit threads.
+
+5. **SLA Policy Tier Matrix**:
+   - `Platinum Tier` (99.9% Uptime, 15m Response SLA, 2h Resolution SLA, $500/hr breach penalty)
+   - `Gold Tier` (99.5% Uptime, 30m Response SLA, 4h Resolution SLA, $250/hr breach penalty)
+   - `Silver Tier` (98.0% Uptime, 2h Response SLA, 12h Resolution SLA, $100/hr breach penalty)
+
+6. **Enterprise Social Proof & Metrics**:
+   - 99.4% Average SLA Compliance Rate
+   - $2.4M+ Penalties Prevented
+   - 4.2x Faster Incident Resolution
+   - 0 Unnotified SLA Breaches
+
+7. **Call To Action (CTA) & Global Footer**:
+   - Direct button to launch the live app / create tickets.
+   - System status indicator (All Systems Operational `100%`).
+
+---
+
+## 4. Supabase Database Schema (Complete SQL DDL)
+
+Execute this script in the **Supabase SQL Editor**:
+
+```sql
+-- 1. Create Custom Enum Types
+CREATE TYPE user_role AS ENUM ('ADMIN', 'AGENT', 'CLIENT');
+CREATE TYPE request_priority AS ENUM ('P1_CRITICAL', 'P2_HIGH', 'P3_MEDIUM', 'P4_LOW');
+CREATE TYPE request_status AS ENUM ('SUBMITTED', 'TRIAGED', 'IN_PROGRESS', 'UNDER_REVIEW', 'RESOLVED', 'CLOSED');
+CREATE TYPE risk_level AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL');
+CREATE TYPE sla_tier AS ENUM ('PLATINUM', 'GOLD', 'SILVER', 'STANDARD');
+
+-- 2. Profiles Table (Extends Supabase Auth users)
+CREATE TABLE public.profiles (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  full_name TEXT NOT NULL,
+  role user_role DEFAULT 'CLIENT'::user_role,
+  avatar_url TEXT,
+  company TEXT,
+  department TEXT,
+  active_tickets_count INT DEFAULT 0,
+  max_capacity INT DEFAULT 5,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 3. SLA Policies Table
+CREATE TABLE public.sla_policies (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  tier sla_tier NOT NULL UNIQUE,
+  target_uptime NUMERIC(4,2) NOT NULL,
+  response_time_minutes INT NOT NULL,
+  resolution_time_minutes INT NOT NULL,
+  penalty_rate_per_hour NUMERIC(10,2) NOT NULL,
+  business_hours_only BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 4. Service Requests Table
+CREATE TABLE public.service_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  ticket_number TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL,
+  department TEXT NOT NULL,
+  priority request_priority DEFAULT 'P3_MEDIUM'::request_priority,
+  status request_status DEFAULT 'SUBMITTED'::request_status,
+  
+  -- Requester Relation
+  requester_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  requester_name TEXT NOT NULL,
+  requester_email TEXT NOT NULL,
+  requester_company TEXT,
+  
+  -- Assignee Relation
+  assignee_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  assignee_name TEXT,
+  assignee_email TEXT,
+  
+  -- SLA Timers & Deadlines
+  sla_tier sla_tier DEFAULT 'GOLD'::sla_tier,
+  response_due_at TIMESTAMPTZ NOT NULL,
+  responded_at TIMESTAMPTZ,
+  resolution_due_at TIMESTAMPTZ NOT NULL,
+  resolved_at TIMESTAMPTZ,
+  
+  -- Predictive AI Intelligence
+  risk_score INT DEFAULT 10,
+  risk_level risk_level DEFAULT 'LOW'::risk_level,
+  risk_trend TEXT DEFAULT 'stable',
+  risk_explanation TEXT,
+  complexity_score INT DEFAULT 5,
+  sentiment_urgency TEXT DEFAULT 'moderate',
+  
+  tags TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Timeline & Audit Events Table
+CREATE TABLE public.request_timeline_events (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  request_id UUID REFERENCES public.service_requests(id) ON DELETE CASCADE,
+  actor_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  actor_name TEXT NOT NULL,
+  actor_role TEXT NOT NULL,
+  is_ai BOOLEAN DEFAULT FALSE,
+  event_type TEXT NOT NULL, -- 'status_change', 'ai_remediation', 'comment', 'escalation'
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 6. Row Level Security (RLS) Policies
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sla_policies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.request_timeline_events ENABLE ROW LEVEL SECURITY;
+
+-- Profiles: Anyone authenticated can read profiles; users can update their own
+CREATE POLICY "Allow public read on profiles" ON public.profiles FOR SELECT USING (true);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- SLA Policies: Everyone can read SLA policies; Admins can update
+CREATE POLICY "Read SLA policies" ON public.sla_policies FOR SELECT USING (true);
+
+-- Service Requests:
+-- Clients see their own requests; Admins/Agents see all requests
+CREATE POLICY "Clients see their own requests" ON public.service_requests
+  FOR SELECT USING (
+    requester_id = auth.uid() OR 
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('ADMIN', 'AGENT'))
+  );
+
+CREATE POLICY "Clients can create requests" ON public.service_requests
+  FOR INSERT WITH CHECK (auth.uid() = requester_id);
+
+CREATE POLICY "Admins and Agents can update requests" ON public.service_requests
+  FOR UPDATE USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('ADMIN', 'AGENT'))
+  );
+
+-- Timeline: Read allowed if user can see parent request
+CREATE POLICY "Read timeline events" ON public.request_timeline_events
+  FOR SELECT USING (true);
+
+CREATE POLICY "Insert timeline events" ON public.request_timeline_events
+  FOR INSERT WITH CHECK (true);
