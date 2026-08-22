@@ -1,4 +1,11 @@
+import sys
+from pathlib import Path
 from datetime import datetime, timedelta
+
+backend_dir = str(Path(__file__).resolve().parent.parent)
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 from sqlalchemy.orm import Session
 from app.models.organization import Organization
 from app.models.user import User

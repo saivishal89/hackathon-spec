@@ -1,5 +1,12 @@
 import time
+import sys
+from pathlib import Path
 from datetime import datetime
+
+backend_dir = str(Path(__file__).resolve().parent.parent.parent)
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 from app.core.database import SessionLocal
 from app.models.request import ServiceRequest
 from app.models.user import User
@@ -11,7 +18,7 @@ def run_escalation_cycle():
         now = datetime.utcnow()
         # Find critical tickets unassigned for over 15 minutes
         unassigned_critical = db.query(ServiceRequest).filter(
-            ServiceRequest.assignee_id == None,
+            ServiceRequest.assignee_id.is_(None),
             ServiceRequest.priority == "P1_CRITICAL",
             ServiceRequest.status == "SUBMITTED"
         ).all()

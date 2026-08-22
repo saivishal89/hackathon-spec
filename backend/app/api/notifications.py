@@ -16,7 +16,7 @@ def get_user_notifications(
 ):
     notifs = db.query(Notification).filter(
         (Notification.user_id == current_user.id) |
-        (Notification.user_id == None) |
+        (Notification.user_id.is_(None)) |
         (Notification.organization_id == current_user.organization_id)
     ).order_by(Notification.created_at.desc()).limit(20).all()
     

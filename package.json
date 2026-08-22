@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:node": "node server/index.mjs & vite",
     "server:python": "uvicorn app.main:app --app-dir backend --reload --port 8000",
-    "worker:python": "python -m app.worker",
+    "worker:python": "python backend/app/worker.py",
     "docker:up": "docker compose up --build",
     "docker:down": "docker compose down",
     "build": "tsc && vite build",

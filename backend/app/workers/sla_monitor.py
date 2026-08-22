@@ -1,5 +1,12 @@
 import time
+import sys
+from pathlib import Path
 from datetime import datetime
+
+backend_dir = str(Path(__file__).resolve().parent.parent.parent)
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 from app.core.database import SessionLocal, engine, Base
 from app.models.request import ServiceRequest
 from app.services.sla_engine import SLAEngine

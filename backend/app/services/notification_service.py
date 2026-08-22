@@ -37,9 +37,9 @@ class NotificationService:
 
     @staticmethod
     def get_unread_notifications(db: Session, user_id: Optional[str] = None) -> List[Notification]:
-        query = db.query(Notification).filter(Notification.is_read == False)
+        query = db.query(Notification).filter(Notification.is_read.is_(False))
         if user_id:
-            query = query.filter((Notification.user_id == user_id) | (Notification.user_id == None))
+            query = query.filter((Notification.user_id == user_id) | (Notification.user_id.is_(None)))
         return query.order_by(Notification.created_at.desc()).limit(20).all()
 
     @staticmethod
