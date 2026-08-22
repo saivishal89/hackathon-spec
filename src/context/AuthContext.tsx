@@ -3,6 +3,14 @@ import { User, UserRole } from '../types/user';
 import { UserSession, Permission, ROLE_PERMISSIONS } from '../types/auth';
 import { MOCK_USERS, CURRENT_USER_ADMIN, CURRENT_USER_CLIENT } from '../data/mockUsers';
 import { AuditLogger } from '../services/auditLogger';
+import { 
+  supabase, 
+  isSupabaseConfigured, 
+  signInWithGoogle, 
+  signInWithGitHub, 
+  mapSupabaseUserToAppUser, 
+  signOutSupabase 
+} from '../lib/supabase';
 
 const STORAGE_KEY_AUTH_SESSION = 'sla_ai_auth_session_jwt_v1';
 
@@ -10,7 +18,9 @@ interface AuthContextType {
   user: User | null;
   session: UserSession | null;
   isAuthenticated: boolean;
+  isSupabaseConnected: boolean;
   login: (email: string, password?: string) => Promise<{ success: boolean; error?: string; user?: User }>;
+  loginWithOAuth: (provider: 'google' | 'github') => Promise<{ success: boolean; error?: string; user?: User }>;
   logout: () => void;
   hasPermission: (permission: Permission) => boolean;
   isRole: (...roles: UserRole[]) => boolean;
@@ -19,6 +29,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const [isSupabaseConnected] = useState<boolean>(isSupabaseConfigured());
+
   const [session, setSession] = useState<UserSession | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_AUTH_SESSION);
     if (saved) {
@@ -45,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = session ? session.user : null;
   const isAuthenticated = !!session && session.expiresAt > Date.now();
 
+  // Save session to localStorage
   useEffect(() => {
     if (session) {
       localStorage.setItem(STORAGE_KEY_AUTH_SESSION, JSON.stringify(session));
@@ -53,8 +66,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [session]);
 
+  // Listen to Supabase Auth State Changes (Handles OAuth Redirects from Google/GitHub)
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session: sbSession } }) => {
+      if (sbSession?.user) {
+        const mappedUser = mapSupabaseUserToAppUser(sbSession.user);
+        const appSession: UserSession = {
+          token: sbSession.access_token,
+          user: mappedUser,
+          expiresAt: (sbSession.expires_at || 0) * 1000 || Date.now() + 8 * 3600 * 1000,
+          organizationId: 'org_supabase_oauth',
+          permissions: ROLE_PERMISSIONS[mappedUser.role],
+        };
+        setSession(appSession);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sbSession) => {
+      if (event === 'SIGNED_IN' && sbSession?.user) {
+        const mappedUser = mapSupabaseUserToAppUser(sbSession.user);
+        const appSession: UserSession = {
+          token: sbSession.access_token,
+          user: mappedUser,
+          expiresAt: (sbSession.expires_at || 0) * 1000 || Date.now() + 8 * 3600 * 1000,
+          organizationId: 'org_supabase_oauth',
+          permissions: ROLE_PERMISSIONS[mappedUser.role],
+        };
+        setSession(appSession);
+        
+        AuditLogger.log({
+          userId: mappedUser.id,
+          userName: mappedUser.name,
+          userRole: mappedUser.role,
+          action: 'SUPABASE_OAUTH_LOGIN_SUCCESS',
+          resource: 'AuthService',
+          status: 'SUCCESS',
+          metadata: { email: mappedUser.email },
+        });
+      } else if (event === 'SIGNED_OUT') {
+        setSession(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const login = async (email: string, password?: string) => {
-    // 1. Authenticate user from database
+    // 1. Authenticate user from database / mock registry
     const matchedUser = MOCK_USERS.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
 
     if (!matchedUser) {
@@ -95,6 +158,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { success: true, user: matchedUser };
   };
 
+  /**
+   * OAuth Login with Supabase (Google or GitHub)
+   */
+  const loginWithOAuth = async (provider: 'google' | 'github'): Promise<{ success: boolean; error?: string; user?: User }> => {
+    if (isSupabaseConfigured()) {
+      const { error } = provider === 'google' 
+        ? await signInWithGoogle() 
+        : await signInWithGitHub();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true };
+    }
+
+    // Fallback: If running without Supabase credentials, provision verified demo profile
+    const demoEmail = provider === 'google' ? 'sarah.connor@enterprise.io' : 'alex.morgan@fintechcorp.com';
+    return login(demoEmail);
+  };
+
   const logout = () => {
     if (session) {
       AuditLogger.log({
@@ -106,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         status: 'SUCCESS',
       });
     }
+    signOutSupabase();
     setSession(null);
     localStorage.removeItem(STORAGE_KEY_AUTH_SESSION);
   };
@@ -126,7 +210,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         isAuthenticated,
+        isSupabaseConnected,
         login,
+        loginWithOAuth,
         logout,
         hasPermission,
         isRole,
@@ -144,3 +230,5 @@ export function useAuth() {
   }
   return context;
 }
+
+export default AuthContext;

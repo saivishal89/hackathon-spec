@@ -23,7 +23,7 @@ export interface LoginPageProps {
 }
 
 export function LoginPage({ onNavigate }: LoginPageProps) {
-  const { login } = useAuth();
+  const { login, loginWithOAuth, isSupabaseConnected } = useAuth();
   const { showToast } = useToast();
 
   const [isSignUp, setIsSignUp] = useState(false);
@@ -55,11 +55,11 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
           onNavigate('/client');
         }
       } else {
-        setErrorMsg(result.error || 'Authentication failed. Please verify your credentials.');
+        setErrorMsg(result.error || 'Authentication failed');
       }
     } catch (err: any) {
       setIsLoading(false);
-      setErrorMsg(err.message || 'An unexpected error occurred during login');
+      setErrorMsg(err.message || 'Login failed');
     }
   };
 
@@ -75,20 +75,33 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     setIsLoading(true);
     setErrorMsg('');
-    setTimeout(async () => {
-      // Fast demo authentication for Google/GitHub
-      const demoEmail = provider === 'google' ? 'sarah.connor@enterprise.io' : 'alex.morgan@fintechcorp.com';
-      const result = await login(demoEmail, 'password123');
+
+    try {
+      showToast(
+        'Connecting OAuth',
+        `Initiating ${provider === 'google' ? 'Google' : 'GitHub'} authentication...`,
+        'info'
+      );
+
+      const result = await loginWithOAuth(provider);
       setIsLoading(false);
-      if (result.success && result.user) {
-        showToast('OAuth Verified', `Connected with ${provider === 'google' ? 'Google' : 'GitHub'}`, 'success');
-        if (result.user.role === 'ADMIN' || result.user.role === 'AGENT') {
-          onNavigate('/admin');
-        } else {
-          onNavigate('/client');
+
+      if (result.success) {
+        if (result.user) {
+          showToast('OAuth Verified', `Welcome, ${result.user.name}!`, 'success');
+          if (result.user.role === 'ADMIN' || result.user.role === 'AGENT') {
+            onNavigate('/admin');
+          } else {
+            onNavigate('/client');
+          }
         }
+      } else {
+        setErrorMsg(result.error || `Failed to sign in with ${provider}`);
       }
-    }, 600);
+    } catch (err: any) {
+      setIsLoading(false);
+      setErrorMsg(err.message || `OAuth sign in error with ${provider}`);
+    }
   };
 
   const toggleFullscreen = () => {
@@ -384,7 +397,7 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
             <div className="relative flex items-center justify-center pt-1">
               <div className={`w-full border-t ${isDarkTheme ? 'border-slate-800' : 'border-slate-200'}`} />
               <span className={`absolute px-3 text-xs uppercase font-mono ${isDarkTheme ? 'bg-[#0B0F19] text-slate-500' : 'bg-white text-slate-400'}`}>
-                or
+                or continue with supabase oauth
               </span>
             </div>
 
