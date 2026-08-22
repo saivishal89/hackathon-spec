@@ -1,0 +1,490 @@
+import { ServiceRequest } from '../types/request';
+
+const now = new Date();
+const hoursAgo = (h: number) => new Date(now.getTime() - h * 3600 * 1000).toISOString();
+const hoursFromNow = (h: number) => new Date(now.getTime() + h * 3600 * 1000).toISOString();
+const minutesAgo = (m: number) => new Date(now.getTime() - m * 60 * 1000).toISOString();
+const minutesFromNow = (m: number) => new Date(now.getTime() + m * 60 * 1000).toISOString();
+
+export const MOCK_REQUESTS: ServiceRequest[] = [
+  {
+    id: 'req-101',
+    ticketNumber: 'SLA-8941',
+    title: 'Critical: Production Postgres DB Connection Pool Exhaustion in US-East',
+    description: 'All backend microservices are experiencing timeouts connecting to the primary DB cluster. Client checkout transactions failing at 34% rate.',
+    category: 'Database Outage',
+    department: 'IT Infrastructure',
+    priority: 'P1_CRITICAL',
+    status: 'IN_PROGRESS',
+    requesterId: 'user-client-1',
+    requesterName: 'Alex Morgan',
+    requesterEmail: 'alex.morgan@fintechcorp.com',
+    requesterCompany: 'FinTech Global Systems',
+    assigneeId: 'user-agent-3',
+    assigneeName: 'Marcus Vance',
+    assigneeEmail: 'marcus.vance@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(1.5),
+    updatedAt: minutesAgo(12),
+    responseDueAt: hoursAgo(1.25),
+    respondedAt: hoursAgo(1.35),
+    resolutionDueAt: minutesFromNow(25), // 25 mins left on 2h SLA
+    slaTier: 'PLATINUM',
+    riskScore: 89,
+    riskLevel: 'CRITICAL',
+    riskTrend: 'increasing',
+    riskExplanation: 'Imminent breach: 80% of SLA elapsed while Marcus Vance is overloaded (6 concurrent tickets). High risk of financial penalty ($150/min).',
+    riskFactors: [
+      { id: 'rf1', label: 'Assignee Saturation', weight: 0.35, impact: 'critical', description: 'Marcus Vance is handling 6 active incidents (120% capacity).' },
+      { id: 'rf2', label: 'Time Window Scarcity', weight: 0.35, impact: 'critical', description: 'Only 25 minutes remaining out of 120m SLA target.' },
+      { id: 'rf3', label: 'Architectural Severity', weight: 0.30, impact: 'high', description: 'Core connection pool locks require rolling replica restart.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-1',
+        type: 'reassign',
+        title: 'Auto-Reassign to David Kim (SRE Lead)',
+        description: 'David Kim has 2 active tickets (33% capacity) and 4 years DB pool experience. Reduces breach probability to 18%.',
+        predictedRiskReduction: 71,
+        targetAssigneeId: 'user-agent-1',
+        targetAssigneeName: 'David Kim',
+      },
+      {
+        id: 'act-2',
+        type: 'add_co_assignee',
+        title: 'Pair Sarah Connor as Co-Responder',
+        description: 'Instantly dispatches SRE incident co-pilot to handle replica failover in parallel.',
+        predictedRiskReduction: 42,
+      },
+      {
+        id: 'act-3',
+        type: 'extend_grace',
+        title: 'Request Client 30m Maintenance Grace Extension',
+        description: 'Notifies Alex Morgan with live remediation telemetry and secures temporary SLA waiver.',
+        predictedRiskReduction: 30,
+      }
+    ],
+    complexityScore: 9,
+    sentimentUrgency: 'critical',
+    tags: ['Database', 'Postgres', 'P1', 'Outage', 'Platinum Tier'],
+    timeline: [
+      {
+        id: 'tl-1',
+        timestamp: hoursAgo(1.5),
+        title: 'Ticket Submitted via Enterprise API',
+        description: 'Automated telemetry trigger: High latency spike on DB pool.',
+        actor: { name: 'Alex Morgan', role: 'Client' },
+        type: 'status_change',
+      },
+      {
+        id: 'tl-2',
+        timestamp: hoursAgo(1.35),
+        title: 'First Response Acknowledged',
+        description: 'Marcus Vance picked up ticket and initiated diagnostic log export.',
+        actor: { name: 'Marcus Vance', role: 'Support Agent' },
+        type: 'status_change',
+      },
+      {
+        id: 'tl-3',
+        timestamp: minutesAgo(20),
+        title: 'AI Breach Risk Alert Triggered',
+        description: 'SLA AI Engine elevated risk score to 89% (Critical) due to assignee bottleneck.',
+        actor: { name: 'SLA AI Agent', role: 'System Intelligence', isAi: true },
+        type: 'ai_remediation',
+      }
+    ]
+  },
+  {
+    id: 'req-102',
+    ticketNumber: 'SLA-8942',
+    title: 'Kubernetes Ingress Controller 502 Bad Gateway during Canary Rollout',
+    description: 'Ingress traffic to auth-service intermittently returning 502 during v2.4 canary deployment. 12 enterprise accounts impacted.',
+    category: 'Cloud Deployment',
+    department: 'DevOps & Cloud',
+    priority: 'P2_HIGH',
+    status: 'IN_PROGRESS',
+    requesterId: 'user-client-2',
+    requesterName: 'Jordan Lee',
+    requesterEmail: 'jordan.lee@acmecorp.com',
+    requesterCompany: 'Acme International',
+    assigneeId: 'user-agent-1',
+    assigneeName: 'David Kim',
+    assigneeEmail: 'david.kim@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(3),
+    updatedAt: minutesAgo(35),
+    responseDueAt: hoursAgo(2.5),
+    respondedAt: hoursAgo(2.7),
+    resolutionDueAt: hoursFromNow(3), // 3 hours remaining of 6h SLA
+    slaTier: 'PLATINUM',
+    riskScore: 64,
+    riskLevel: 'HIGH',
+    riskTrend: 'stable',
+    riskExplanation: 'High risk: Rollout canary rollback is pending verification test suite results. 50% SLA remaining.',
+    riskFactors: [
+      { id: 'rf-k8s-1', label: 'Canary Gate Test Lag', weight: 0.4, impact: 'high', description: 'End-to-end integration test runs taking 45 minutes.' },
+      { id: 'rf-k8s-2', label: 'SLA Halfway Mark', weight: 0.3, impact: 'medium', description: '3 hours elapsed out of 6 hours limit.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-k8s-1',
+        type: 'trigger_playbook',
+        title: 'Execute Automated Fast-Rollback Playbook',
+        description: 'Reverts cluster traffic immediately to v2.3.9 stable baseline without waiting for test completion.',
+        predictedRiskReduction: 55,
+      }
+    ],
+    complexityScore: 7,
+    sentimentUrgency: 'high',
+    tags: ['Kubernetes', 'DevOps', 'Canary', 'Ingress'],
+    timeline: [
+      {
+        id: 'tl-k1',
+        timestamp: hoursAgo(3),
+        title: 'Canary Alert Submitted',
+        description: 'Client noticed 502 error rate jump to 4.2%.',
+        actor: { name: 'Jordan Lee', role: 'Client' },
+        type: 'status_change',
+      },
+      {
+        id: 'tl-k2',
+        timestamp: hoursAgo(2.7),
+        title: 'Triage Started by SRE',
+        description: 'David Kim inspecting Envoy ingress logs.',
+        actor: { name: 'David Kim', role: 'Support Agent' },
+        type: 'status_change',
+      }
+    ]
+  },
+  {
+    id: 'req-103',
+    ticketNumber: 'SLA-8943',
+    title: 'SSO SAML / Okta Integration Certificate Expiry Warning',
+    description: 'SAML signing certificate for single sign-on expires in 48 hours. Needs certificate rotation and IdP metadata refresh.',
+    category: 'Identity & Access',
+    department: 'Cybersecurity',
+    priority: 'P2_HIGH',
+    status: 'TRIAGED',
+    requesterId: 'user-client-1',
+    requesterName: 'Alex Morgan',
+    requesterEmail: 'alex.morgan@fintechcorp.com',
+    requesterCompany: 'FinTech Global Systems',
+    assigneeId: 'user-agent-2',
+    assigneeName: 'Elena Rostova',
+    assigneeEmail: 'elena.rostova@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(1),
+    updatedAt: minutesAgo(50),
+    responseDueAt: minutesFromNow(30),
+    respondedAt: minutesAgo(40),
+    resolutionDueAt: hoursFromNow(5),
+    slaTier: 'GOLD',
+    riskScore: 24,
+    riskLevel: 'LOW',
+    riskTrend: 'decreasing',
+    riskExplanation: 'On track: Standard automated certificate generation flow will resolve within 45 minutes.',
+    riskFactors: [
+      { id: 'rf-sec-1', label: 'Certificate Automation', weight: 0.5, impact: 'low', description: 'Automated Let\'s Encrypt / Vault rotation ready.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-sec-1',
+        type: 'trigger_playbook',
+        title: 'Auto-deploy Vault TLS Certificate',
+        description: 'Runs automated secret rotation script.',
+        predictedRiskReduction: 15,
+      }
+    ],
+    complexityScore: 4,
+    sentimentUrgency: 'moderate',
+    tags: ['Security', 'Okta', 'SAML', 'TLS'],
+    timeline: [
+      {
+        id: 'tl-s1',
+        timestamp: hoursAgo(1),
+        title: 'Certificate Renewal Request Created',
+        description: 'Auto-generated notification from compliance monitor.',
+        actor: { name: 'Alex Morgan', role: 'Client' },
+        type: 'status_change',
+      }
+    ]
+  },
+  {
+    id: 'req-104',
+    ticketNumber: 'SLA-8944',
+    title: 'Enterprise Billing Reconciliation Mismatch for Multi-Currency Invoices',
+    description: 'March EUR and GBP usage calculations differ from Stripe webhook totals by €14,230 due to VAT tax rate table misalignment.',
+    category: 'Billing Audit',
+    department: 'Billing & Finance',
+    priority: 'P3_MEDIUM',
+    status: 'IN_PROGRESS',
+    requesterId: 'user-client-1',
+    requesterName: 'Alex Morgan',
+    requesterEmail: 'alex.morgan@fintechcorp.com',
+    requesterCompany: 'FinTech Global Systems',
+    assigneeId: 'user-agent-4',
+    assigneeName: 'Priya Sharma',
+    assigneeEmail: 'priya.sharma@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(8),
+    updatedAt: hoursAgo(2),
+    responseDueAt: hoursAgo(6),
+    respondedAt: hoursAgo(7),
+    resolutionDueAt: hoursFromNow(16),
+    slaTier: 'GOLD',
+    riskScore: 18,
+    riskLevel: 'LOW',
+    riskTrend: 'stable',
+    riskExplanation: 'Well within SLA: Priya Sharma is recalculating invoice lines with revised VAT matrices.',
+    riskFactors: [
+      { id: 'rf-bill-1', label: 'Financial Audit Check', weight: 0.4, impact: 'low', description: 'Re-run script has validated 94% of line items.' }
+    ],
+    recommendedActions: [],
+    complexityScore: 5,
+    sentimentUrgency: 'moderate',
+    tags: ['Billing', 'Finance', 'Stripe', 'Invoices'],
+    timeline: [
+      {
+        id: 'tl-b1',
+        timestamp: hoursAgo(8),
+        title: 'Billing Dispute Opened',
+        description: 'Audit report uploaded by client finance team.',
+        actor: { name: 'Alex Morgan', role: 'Client' },
+        type: 'status_change',
+      }
+    ]
+  },
+  {
+    id: 'req-105',
+    ticketNumber: 'SLA-8945',
+    title: 'Redis Cluster Split-Brain Partition during Network Maintenance',
+    description: 'Node quorum failure in EU region causing state cache desynchronization. Session invalidations observed.',
+    category: 'Infrastructure Resilience',
+    department: 'IT Infrastructure',
+    priority: 'P1_CRITICAL',
+    status: 'UNDER_REVIEW',
+    requesterId: 'user-client-2',
+    requesterName: 'Jordan Lee',
+    requesterEmail: 'jordan.lee@acmecorp.com',
+    requesterCompany: 'Acme International',
+    assigneeId: 'user-agent-3',
+    assigneeName: 'Marcus Vance',
+    assigneeEmail: 'marcus.vance@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(2.1),
+    updatedAt: minutesAgo(8),
+    responseDueAt: hoursAgo(1.8),
+    respondedAt: hoursAgo(1.9),
+    resolutionDueAt: minutesAgo(10), // BREACHED!
+    slaTier: 'PLATINUM',
+    riskScore: 98,
+    riskLevel: 'CRITICAL',
+    riskTrend: 'increasing',
+    riskExplanation: 'SLA BREACHED: Ticket passed resolution due date by 10 minutes. Marcus Vance overloaded. Emergency failover required.',
+    riskFactors: [
+      { id: 'rf-red-1', label: 'Resolution SLA Overdue', weight: 0.5, impact: 'critical', description: 'Resolution deadline passed 10 minutes ago.' },
+      { id: 'rf-red-2', label: 'Cluster State Divergence', weight: 0.3, impact: 'critical', description: 'Requires manual cluster election rebuild.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-red-1',
+        type: 'escalate_priority',
+        title: 'Trigger Incident Command War Room',
+        description: 'Dispatches automated bridge to all senior infrastructure architects.',
+        predictedRiskReduction: 40,
+      },
+      {
+        id: 'act-red-2',
+        type: 'reassign',
+        title: 'Reassign to David Kim (Available)',
+        description: 'Directs cluster re-balance specialist immediately.',
+        predictedRiskReduction: 60,
+        targetAssigneeId: 'user-agent-1',
+        targetAssigneeName: 'David Kim',
+      }
+    ],
+    complexityScore: 10,
+    sentimentUrgency: 'critical',
+    tags: ['Redis', 'Infrastructure', 'Breached', 'Cluster'],
+    timeline: [
+      {
+        id: 'tl-r1',
+        timestamp: hoursAgo(2.1),
+        title: 'Cluster Outage Detected',
+        description: 'Network split-brain alert triggered.',
+        actor: { name: 'Jordan Lee', role: 'Client' },
+        type: 'status_change',
+      },
+      {
+        id: 'tl-r2',
+        timestamp: minutesAgo(10),
+        title: 'SLA Resolution Window Breached',
+        description: 'Platinum SLA penalty clock active ($150/minute).',
+        actor: { name: 'SLA Policy Engine', role: 'System', isAi: true },
+        type: 'sla_warning',
+      }
+    ]
+  },
+  {
+    id: 'req-106',
+    ticketNumber: 'SLA-8946',
+    title: 'GraphQL Schema Backward Compatibility Regression on Mobile Endpoints',
+    description: 'v4.1.2 schema mutation dropped nullable field on UserProfile, causing crashes for iOS app users on older versions.',
+    category: 'API Engineering',
+    department: 'Core Engineering',
+    priority: 'P2_HIGH',
+    status: 'RESOLVED',
+    requesterId: 'user-client-1',
+    requesterName: 'Alex Morgan',
+    requesterEmail: 'alex.morgan@fintechcorp.com',
+    requesterCompany: 'FinTech Global Systems',
+    assigneeId: 'user-agent-1',
+    assigneeName: 'David Kim',
+    assigneeEmail: 'david.kim@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(14),
+    updatedAt: hoursAgo(10),
+    responseDueAt: hoursAgo(13.5),
+    respondedAt: hoursAgo(13.7),
+    resolutionDueAt: hoursAgo(8),
+    resolvedAt: hoursAgo(10), // Resolved 2 hours before SLA
+    slaTier: 'PLATINUM',
+    riskScore: 5,
+    riskLevel: 'LOW',
+    riskTrend: 'decreasing',
+    riskExplanation: 'Resolved Ahead of Schedule: Hotfix deployed and validated with automated regression suite.',
+    riskFactors: [],
+    recommendedActions: [],
+    complexityScore: 6,
+    sentimentUrgency: 'low',
+    tags: ['GraphQL', 'Mobile', 'Hotfix', 'Resolved'],
+    timeline: [
+      {
+        id: 'tl-g1',
+        timestamp: hoursAgo(14),
+        title: 'Bug Report Submitted',
+        description: 'Crash telemetry on iOS builds reported.',
+        actor: { name: 'Alex Morgan', role: 'Client' },
+        type: 'status_change',
+      },
+      {
+        id: 'tl-g2',
+        timestamp: hoursAgo(10),
+        title: 'Hotfix Deployed & Verified',
+        description: 'Schema compatibility patch v4.1.3 rolled out to all API gateways.',
+        actor: { name: 'David Kim', role: 'Support Agent' },
+        type: 'status_change',
+      }
+    ]
+  },
+  {
+    id: 'req-107',
+    ticketNumber: 'SLA-8947',
+    title: 'Customer Onboarding Bulk CSV Data Ingestion Failure',
+    description: 'Importing 50,000 legacy customer records from Salesforce export fails on row 14,200 due to unescaped UTF-8 characters.',
+    category: 'Data Migration',
+    department: 'Customer Operations',
+    priority: 'P3_MEDIUM',
+    status: 'SUBMITTED',
+    requesterId: 'user-client-2',
+    requesterName: 'Jordan Lee',
+    requesterEmail: 'jordan.lee@acmecorp.com',
+    requesterCompany: 'Acme International',
+    createdAt: minutesAgo(20),
+    updatedAt: minutesAgo(20),
+    responseDueAt: hoursFromNow(1.5),
+    resolutionDueAt: hoursFromNow(23),
+    slaTier: 'STANDARD',
+    riskScore: 32,
+    riskLevel: 'LOW',
+    riskTrend: 'stable',
+    riskExplanation: 'Normal progression: Ticket recently created, awaiting triage assignment.',
+    riskFactors: [
+      { id: 'rf-csv-1', label: 'Unassigned Status', weight: 0.3, impact: 'medium', description: 'Pending engineer pickup.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-csv-1',
+        type: 'reassign',
+        title: 'Assign to Michael Chang (Data Ops)',
+        description: 'Assigns data ingestion specialist.',
+        predictedRiskReduction: 12,
+        targetAssigneeName: 'Michael Chang',
+      }
+    ],
+    complexityScore: 4,
+    sentimentUrgency: 'low',
+    tags: ['CSV', 'Data Pipeline', 'Salesforce'],
+    timeline: [
+      {
+        id: 'tl-c1',
+        timestamp: minutesAgo(20),
+        title: 'Import Issue Submitted',
+        description: 'Attached error stack trace log and sample CSV.',
+        actor: { name: 'Jordan Lee', role: 'Client' },
+        type: 'status_change',
+      }
+    ]
+  },
+  {
+    id: 'req-108',
+    ticketNumber: 'SLA-8948',
+    title: 'Kafka Consumer Lag Spikes in Real-Time Fraud Detection Engine',
+    description: 'Event lag reached 240,000 unconsumed records in fraud_detection_events topic. Scoring latency elevated to 14.5s.',
+    category: 'Stream Processing',
+    department: 'Core Engineering',
+    priority: 'P1_CRITICAL',
+    status: 'IN_PROGRESS',
+    requesterId: 'user-client-1',
+    requesterName: 'Alex Morgan',
+    requesterEmail: 'alex.morgan@fintechcorp.com',
+    requesterCompany: 'FinTech Global Systems',
+    assigneeId: 'user-agent-1',
+    assigneeName: 'David Kim',
+    assigneeEmail: 'david.kim@enterprise.io',
+    assigneeAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    createdAt: hoursAgo(1.1),
+    updatedAt: minutesAgo(15),
+    responseDueAt: hoursAgo(0.85),
+    respondedAt: hoursAgo(0.95),
+    resolutionDueAt: minutesFromNow(54), // 54 mins left
+    slaTier: 'PLATINUM',
+    riskScore: 78,
+    riskLevel: 'HIGH',
+    riskTrend: 'increasing',
+    riskExplanation: 'High Risk: 55% of SLA elapsed. Consumer rebalancing storm is preventing rapid partition catch-up.',
+    riskFactors: [
+      { id: 'rf-kfk-1', label: 'Partition Rebalancing Delays', weight: 0.45, impact: 'high', description: 'Consumer group rebalance cycling every 8 minutes.' },
+      { id: 'rf-kfk-2', label: 'Time Window Criticality', weight: 0.35, impact: 'high', description: '54 minutes remaining to meet 2h SLA.' }
+    ],
+    recommendedActions: [
+      {
+        id: 'act-kfk-1',
+        type: 'add_co_assignee',
+        title: 'Attach SRE Scaling Specialist',
+        description: 'Auto-scales partition consumers from 8 to 24 pods.',
+        predictedRiskReduction: 48,
+      },
+      {
+        id: 'act-kfk-2',
+        type: 'trigger_playbook',
+        title: 'Enable Static Consumer Partition Assignment',
+        description: 'Eliminates rebalancing thrash during worker pod scaling.',
+        predictedRiskReduction: 62,
+      }
+    ],
+    complexityScore: 8,
+    sentimentUrgency: 'critical',
+    tags: ['Kafka', 'Streaming', 'Fraud Engine', 'P1'],
+    timeline: [
+      {
+        id: 'tl-kf1',
+        timestamp: hoursAgo(1.1),
+        title: 'Kafka Consumer Lag Alert',
+        description: 'Automated monitoring metric breached threshold.',
+        actor: { name: 'Alex Morgan', role: 'Client' },
+        type: 'status_change',
+      }
+    ]
+  }
+];
