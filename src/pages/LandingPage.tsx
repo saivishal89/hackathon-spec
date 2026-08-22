@@ -170,148 +170,231 @@ export function LandingPage({ onNavigate, onSwitchRole }: LandingPageProps) {
         </div>
 
         {/* Interactive 3D Holographic AI Simulator Grid */}
-        <div id="simulator" className="mt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#0B0F19]/90 border border-indigo-500/20 rounded-3xl p-6 sm:p-8 shadow-[0_0_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl">
+        <div id="simulator" className="mt-12 bg-[#0B0F19]/95 border border-indigo-500/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,0.7)] backdrop-blur-2xl">
           
-          {/* Left Column: 3D Hologram Sphere Canvas */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[360px] bg-gradient-to-b from-indigo-950/30 to-purple-950/20 rounded-2xl border border-white/5 p-4 overflow-hidden">
-            <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/40 border border-white/10 text-[11px] text-slate-400">
-              <Cpu className="h-3.5 w-3.5 text-indigo-400" />
-              <span>3D Neural Risk Core</span>
-            </div>
-            
-            <div className="absolute top-3 right-3">
-              <RiskBadge level={simResult.riskLevel} score={simResult.riskScore} />
-            </div>
-
-            {/* Three.js 3D Viewport */}
-            <HeroScene3D riskScore={simResult.riskScore} riskLevel={simResult.riskLevel} />
-
-            <div className="absolute bottom-3 text-center text-[10px] text-slate-500">
-              Drag mouse to rotate 3D node cluster • Dynamics reflect live sliders
-            </div>
-          </div>
-
-          {/* Right Column: Live Risk Controls & 1-Click Remediation */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Sliders className="h-4 w-4 text-indigo-400" />
-                  Live AI Multi-Factor Triage Simulator
-                </h3>
-                <p className="text-xs text-slate-400">Adjust parameters to simulate live breach probability in real time.</p>
+          {/* Quick Scenario Preset Buttons */}
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-5">
+            <div>
+              <div className="flex items-center gap-2 text-sm font-extrabold text-white">
+                <Sliders className="h-4 w-4 text-indigo-400" />
+                <span>Interactive Live AI Triage Simulator</span>
               </div>
-              <Badge variant={simResult.riskLevel === 'CRITICAL' ? 'critical' : simResult.riskLevel === 'HIGH' ? 'warning' : 'success'}>
-                {simResult.riskLevel} RISK
-              </Badge>
-            </div>
-
-            <div className="space-y-4">
-              {/* Slider 1: SLA Elapsed */}
-              <div>
-                <div className="flex justify-between text-xs font-semibold mb-1.5">
-                  <span className="text-slate-300">SLA Time Elapsed</span>
-                  <span className={`font-mono ${simElapsed > 75 ? 'text-rose-400 font-bold' : 'text-indigo-300'}`}>{simElapsed}%</span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="100"
-                  value={simElapsed}
-                  onChange={(e) => {
-                    setSimElapsed(Number(e.target.value));
-                    setRemediated(false);
-                  }}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-                />
-                <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                  <span>0% (Just Created)</span>
-                  <span>50% (Midway)</span>
-                  <span>100% (Imminent Breach)</span>
-                </div>
-              </div>
-
-              {/* Slider 2: Technical Complexity */}
-              <div>
-                <div className="flex justify-between text-xs font-semibold mb-1.5">
-                  <span className="text-slate-300">Technical Complexity</span>
-                  <span className="font-mono text-purple-300">{simComplexity} / 10</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={simComplexity}
-                  onChange={(e) => {
-                    setSimComplexity(Number(e.target.value));
-                    setRemediated(false);
-                  }}
-                  className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
-                />
-              </div>
-
-              {/* Toggle 3: Engineer Saturation */}
-              <div className="flex items-center justify-between bg-[#111624] p-3 rounded-xl border border-slate-800">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-bold text-xs">
-                    MV
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">{fakeAssignee.name}</div>
-                    <div className="text-[10px] text-slate-400">
-                      Queue Load: <span className="font-semibold text-slate-200">{fakeAssignee.activeTicketsCount} active tickets</span> (Cap: {fakeAssignee.maxCapacity})
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSimOverloaded(!simOverloaded);
-                    setRemediated(false);
-                  }}
-                  className="text-xs border-slate-700 hover:bg-slate-800"
-                >
-                  {simOverloaded ? 'Simulate Available SRE' : 'Simulate Overloaded SRE'}
-                </Button>
-              </div>
-            </div>
-
-            {/* Real-time Diagnostics Output */}
-            <div className="bg-indigo-950/20 border border-indigo-500/20 rounded-xl p-3.5 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
-                <Sparkles className="h-3.5 w-3.5" />
-                Explainable Root-Cause Analysis:
-              </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                {simResult.explanation}
+              <p className="text-xs text-slate-400 mt-0.5">
+                Pick a scenario below or adjust sliders to see the AI predict and prevent SLA breaches in real time.
               </p>
             </div>
 
-            {/* 1-Click AI Auto-Remediation Trigger */}
-            <div className="flex items-center justify-between pt-2">
-              <div className="text-[11px] text-slate-400">
-                {remediated ? (
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4" /> Mitigated: Projected risk reduced by 45%
-                  </span>
-                ) : (
-                  <span>Projected breach mitigation available</span>
-                )}
+            {/* Presets */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Quick Presets:</span>
+              <button
+                onClick={() => {
+                  setSimElapsed(85);
+                  setSimComplexity(9);
+                  setSimOverloaded(true);
+                  setRemediated(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  simElapsed === 85 && simComplexity === 9 && simOverloaded && !remediated
+                    ? 'bg-rose-500/20 border-rose-500 text-rose-300 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                🔴 Critical Outage
+              </button>
+              <button
+                onClick={() => {
+                  setSimElapsed(65);
+                  setSimComplexity(6);
+                  setSimOverloaded(true);
+                  setRemediated(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  simElapsed === 65 && simComplexity === 6 && simOverloaded && !remediated
+                    ? 'bg-amber-500/20 border-amber-500 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.3)]'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                🟡 Latency Spike
+              </button>
+              <button
+                onClick={() => {
+                  setSimElapsed(20);
+                  setSimComplexity(3);
+                  setSimOverloaded(false);
+                  setRemediated(false);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
+                  simElapsed === 20 && simComplexity === 3 && !simOverloaded && !remediated
+                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                }`}
+              >
+                🟢 Fast Track
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left Column: 3D Hologram Sphere Canvas */}
+            <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[380px] bg-gradient-to-b from-indigo-950/40 via-purple-950/20 to-[#070A12] rounded-2xl border border-indigo-500/20 p-4 overflow-hidden">
+              <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1 rounded-md bg-black/60 border border-white/10 text-[11px] font-semibold text-slate-300">
+                <Cpu className="h-3.5 w-3.5 text-indigo-400" />
+                <span>3D Neural Risk Core</span>
               </div>
               
-              <Button
-                variant={remediated ? 'outline' : 'ai-glow'}
-                size="sm"
-                onClick={() => setRemediated(!remediated)}
-                className="text-xs shadow-[0_0_20px_rgba(99,102,241,0.3)]"
-                leftIcon={<Zap className="h-3.5 w-3.5 text-amber-400" />}
-              >
-                {remediated ? 'Reset Simulation' : '1-Click Auto-Remediate'}
-              </Button>
+              <div className="absolute top-3.5 right-3.5">
+                <RiskBadge level={simResult.riskLevel} score={simResult.riskScore} />
+              </div>
+
+              {/* Three.js 3D Viewport */}
+              <HeroScene3D riskScore={simResult.riskScore} riskLevel={simResult.riskLevel} />
+
+              <div className="absolute bottom-3 text-center text-[10px] text-slate-400 font-medium">
+                💡 Drag mouse to rotate • Color & spin speed adapt dynamically to risk
+              </div>
             </div>
 
+            {/* Right Column: Multi-Factor Breakdown & 1-Click AI Fix */}
+            <div className="lg:col-span-7 space-y-5">
+              
+              {/* Factor Breakdown Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                
+                {/* Factor 1: Time */}
+                <div className="bg-[#111625] border border-slate-800 p-3 rounded-xl space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-medium flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5 text-indigo-400" /> Time (40%)
+                    </span>
+                    <span className={`font-mono font-bold ${simElapsed > 75 ? 'text-rose-400' : 'text-indigo-300'}`}>
+                      {simElapsed}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="100"
+                    value={simElapsed}
+                    onChange={(e) => {
+                      setSimElapsed(Number(e.target.value));
+                      setRemediated(false);
+                    }}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                  />
+                  <div className="text-[10px] text-slate-500">
+                    {simElapsed > 80 ? '⚠️ Breach Imminent' : simElapsed > 50 ? '⏱️ In Progress' : '✅ Early Window'}
+                  </div>
+                </div>
+
+                {/* Factor 2: Complexity */}
+                <div className="bg-[#111625] border border-slate-800 p-3 rounded-xl space-y-1.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-medium flex items-center gap-1">
+                      <Cpu className="h-3.5 w-3.5 text-purple-400" /> Complexity (20%)
+                    </span>
+                    <span className="font-mono font-bold text-purple-300">
+                      {simComplexity}/10
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={simComplexity}
+                    onChange={(e) => {
+                      setSimComplexity(Number(e.target.value));
+                      setRemediated(false);
+                    }}
+                    className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  />
+                  <div className="text-[10px] text-slate-500">
+                    {simComplexity >= 8 ? '🔥 Multi-system dependencies' : simComplexity >= 5 ? '⚡ Standard backend' : '🟢 Simple config'}
+                  </div>
+                </div>
+
+                {/* Factor 3: SRE Load */}
+                <div className="bg-[#111625] border border-slate-800 p-3 rounded-xl space-y-1.5 flex flex-col justify-between">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-400 font-medium flex items-center gap-1">
+                      <Users className="h-3.5 w-3.5 text-amber-400" /> Queue Load (25%)
+                    </span>
+                    <span className={`font-mono font-bold ${fakeAssignee.activeTicketsCount > 4 ? 'text-rose-400' : 'text-emerald-300'}`}>
+                      {fakeAssignee.activeTicketsCount}/{fakeAssignee.maxCapacity}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSimOverloaded(!simOverloaded);
+                      setRemediated(false);
+                    }}
+                    className="w-full py-1 text-[11px] font-bold rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-200 transition-colors"
+                  >
+                    {simOverloaded ? 'Switch to Available SRE' : 'Simulate Overloaded SRE'}
+                  </button>
+                  <div className="text-[10px] text-slate-500 truncate">
+                    Assigned: {fakeAssignee.name.split(' ')[0]} {fakeAssignee.name.split(' ')[1]}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Explainable AI Diagnosis Box */}
+              <div className="bg-gradient-to-r from-indigo-950/30 to-purple-950/20 border border-indigo-500/25 rounded-2xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
+                    <Sparkles className="h-4 w-4 text-indigo-400" />
+                    <span>Explainable AI Root-Cause Diagnostic:</span>
+                  </div>
+                  <Badge variant={simResult.riskLevel === 'CRITICAL' ? 'critical' : simResult.riskLevel === 'HIGH' ? 'warning' : 'success'}>
+                    {simResult.riskScore}% Probability
+                  </Badge>
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+                  {simResult.riskExplanation || (
+                    simResult.riskLevel === 'CRITICAL'
+                      ? `⚠️ Critical Imminent Breach: ${fakeAssignee.name} is overloaded (${fakeAssignee.activeTicketsCount}/${fakeAssignee.maxCapacity} tickets) while ${simElapsed}% of the SLA time has elapsed for high complexity system (Level ${simComplexity}/10).`
+                      : simResult.riskLevel === 'HIGH'
+                      ? `⚠️ High Breach Risk: Ticket complexity is elevated (${simComplexity}/10) with ${simElapsed}% SLA elapsed. Active engineer queue requires load balancing.`
+                      : `✅ SLA Healthy: Assigned engineer has ample bandwidth with ${100 - simElapsed}% SLA resolution buffer remaining.`
+                  )}
+                </p>
+              </div>
+
+              {/* 1-Click AI Auto-Remediation Banner */}
+              <div className="bg-[#111625] border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold text-white flex items-center gap-2">
+                    {remediated ? (
+                      <span className="text-emerald-400 flex items-center gap-1.5">
+                        <CheckCircle2 className="h-4 w-4" /> 1-Click AI Mitigation Active
+                      </span>
+                    ) : (
+                      <span>Recommended Action: Reassign to Available Specialist</span>
+                    )}
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    {remediated 
+                      ? 'Reassigned to David Kim (2/5 tickets) • Buffer extended • Penalty saved: $350'
+                      : 'Projected risk reduction: -45% • SRE workload auto-balanced'}
+                  </div>
+                </div>
+
+                <Button
+                  variant={remediated ? 'outline' : 'ai-glow'}
+                  size="sm"
+                  onClick={() => setRemediated(!remediated)}
+                  className={`text-xs font-bold ${remediated ? 'border-emerald-500/50 text-emerald-300' : 'shadow-[0_0_20px_rgba(99,102,241,0.4)]'}`}
+                  leftIcon={<Zap className="h-3.5 w-3.5 text-amber-400" />}
+                >
+                  {remediated ? 'Reset to High Risk' : '⚡ 1-Click Auto-Remediate'}
+                </Button>
+              </div>
+
+            </div>
           </div>
+
         </div>
 
       </section>
