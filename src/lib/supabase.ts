@@ -3,24 +3,41 @@ import { User, UserRole } from '../types/user';
 
 // Read Supabase credentials safely from Vite environment
 const env = (import.meta as any).env || {};
-const supabaseUrl = env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = (env.VITE_SUPABASE_URL || '').trim();
+const supabaseAnonKey = (env.VITE_SUPABASE_ANON_KEY || '').trim();
 
+/**
+ * Checks whether valid, non-placeholder Supabase production credentials exist
+ */
 export const isSupabaseConfigured = (): boolean => {
-  return Boolean(
-    supabaseUrl &&
-    supabaseAnonKey &&
-    supabaseUrl.startsWith('https://') &&
-    supabaseUrl.includes('.supabase.co') &&
-    !supabaseUrl.includes('placeholder') &&
-    !supabaseAnonKey.includes('placeholder')
-  );
+  if (!supabaseUrl || !supabaseAnonKey) return false;
+  if (!supabaseUrl.startsWith('https://')) return false;
+  if (!supabaseUrl.includes('.supabase.co')) return false;
+  
+  // Ignore dummy/template URLs
+  const invalidKeywords = [
+    'placeholder',
+    'your-project',
+    'your_project',
+    'example',
+    'sample',
+    'my-project',
+    'your-anon-key'
+  ];
+  
+  for (const kw of invalidKeywords) {
+    if (supabaseUrl.toLowerCase().includes(kw) || supabaseAnonKey.toLowerCase().includes(kw)) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
-// Fallback mock/safe client if not yet configured with production keys
+// Safe client (uses mock endpoint if not configured so app never crashes)
 export const supabase: SupabaseClient = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-anon-key',
+  isSupabaseConfigured() ? supabaseUrl : 'https://placeholder-disabled.supabase.co',
+  isSupabaseConfigured() ? supabaseAnonKey : 'placeholder-disabled-key',
   {
     auth: {
       autoRefreshToken: true,
@@ -35,24 +52,28 @@ export const supabase: SupabaseClient = createClient(
  */
 export async function signInWithGoogle(redirectTo?: string) {
   if (!isSupabaseConfigured()) {
-    console.warn('[Supabase Auth] VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are not configured yet in .env');
-    return { data: null, error: new Error('Supabase credentials not configured in .env') };
+    console.info('[Supabase Auth] Using demo Google OAuth provider (No live Supabase URL set in .env)');
+    return { data: null, error: new Error('SUPABASE_NOT_CONFIGURED') };
   }
 
   const redirectUrl = redirectTo || `${window.location.origin}/login`;
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: redirectUrl,
-      queryParams: {
-        access_type: 'offline',
-        prompt: 'consent',
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
-    },
-  });
+    });
 
-  return { data, error };
+    return { data, error };
+  } catch (err: any) {
+    return { data: null, error: err };
+  }
 }
 
 /**
@@ -60,21 +81,25 @@ export async function signInWithGoogle(redirectTo?: string) {
  */
 export async function signInWithGitHub(redirectTo?: string) {
   if (!isSupabaseConfigured()) {
-    console.warn('[Supabase Auth] VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are not configured yet in .env');
-    return { data: null, error: new Error('Supabase credentials not configured in .env') };
+    console.info('[Supabase Auth] Using demo GitHub OAuth provider (No live Supabase URL set in .env)');
+    return { data: null, error: new Error('SUPABASE_NOT_CONFIGURED') };
   }
 
   const redirectUrl = redirectTo || `${window.location.origin}/login`;
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'github',
-    options: {
-      redirectTo: redirectUrl,
-      scopes: 'read:user user:email',
-    },
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: redirectUrl,
+        scopes: 'read:user user:email',
+      },
+    });
 
-  return { data, error };
+    return { data, error };
+  } catch (err: any) {
+    return { data: null, error: err };
+  }
 }
 
 /**
@@ -82,9 +107,13 @@ export async function signInWithGitHub(redirectTo?: string) {
  */
 export async function getSupabaseSession() {
   if (!isSupabaseConfigured()) return null;
-  const { data: { session }, error } = await supabase.auth.getSession();
-  if (error || !session) return null;
-  return session;
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) return null;
+    return session;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -96,7 +125,6 @@ export function mapSupabaseUserToAppUser(sbUser: SupabaseUser, roleOverride?: Us
   const name = metadata.full_name || metadata.name || metadata.user_name || email.split('@')[0];
   const avatar = metadata.avatar_url || metadata.picture || `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`;
 
-  // Determine role: default to CLIENT or map based on metadata/email
   let role: UserRole = roleOverride || 'CLIENT';
   let title = 'Client Technical Lead';
 
@@ -130,5 +158,9 @@ export function mapSupabaseUserToAppUser(sbUser: SupabaseUser, roleOverride?: Us
  */
 export async function signOutSupabase() {
   if (!isSupabaseConfigured()) return;
-  await supabase.auth.signOut();
+  try {
+    await supabase.auth.signOut();
+  } catch {
+    // ignore
+  }
 }
